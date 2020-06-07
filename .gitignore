@@ -1,0 +1,9 @@
+# LOGS
+yarn-debug.log*
+yarn-error.log*
+
+# PACKAGES
+node_modules
+
+# ENVS
+.env.local

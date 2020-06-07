@@ -1,0 +1,46 @@
+{
+  "name": "online-room-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "npx nodemon --watch src --watch index.js index.js",
+    "start": "npx forever start -l forever.log -e ./logs/error.log -o ./logs/output.log -a -n --killSignal=SIGTERM index.js",
+    "restart": "npx forever restart -l forever.log -e ./logs/error.log -o ./logs/output.log -a --killSignal=SIGTERM index.js",
+    "stop": "npx forever stop index.js",
+    "logs": "yarn logs:output && echo '\\n\\n' && yarn logs:error",
+    "logs:output": "echo 'output.log:\\n' && cat ./logs/output.log",
+    "logs:error": "echo 'error.log\\n' && cat ./logs/error.log",
+    "logs:clear": ":> logs/output.log && :> logs/error.log",
+    "lint": "npx eslint src/**",
+    "lint:fix": "npx eslint src/** --fix",
+    "cache:clear": "node src/commands/cache_clear.command.js",
+    "seed:users": "node src/commands/seeders/users.seeder.js"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.691.0",
+    "bcrypt": "^4.0.1",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^3.22.0",
+    "ioredis": "^4.17.3",
+    "jsonwebtoken": "^8.5.1",
+    "lodash.get": "^4.4.2",
+    "md5": "^2.2.1",
+    "mongoose": "^5.9.18",
+    "multer": "^1.4.2",
+    "multer-s3": "^2.9.0",
+    "nodemailer": "^6.4.8",
+    "shelljs": "^0.8.4",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.0.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.20.2",
+    "forever": "^2.0.0",
+    "nodemon": "^2.0.3"
+  }
+}
