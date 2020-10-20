@@ -4,10 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "npx nodemon --watch src --watch index.js index.js",
-    "start": "npx forever start -l forever.log -e ./logs/error.log -o ./logs/output.log -a -n --killSignal=SIGTERM index.js",
-    "restart": "npx forever restart -l forever.log -e ./logs/error.log -o ./logs/output.log -a --killSignal=SIGTERM index.js",
-    "stop": "npx forever stop index.js",
+    "dev": "pm2-dev start pm2.dev.config.js",
+    "start": "pm2 start pm2.prod.config.js",
+    "restart": "pm2 reload pm2.prod.config.js",
+    "stop": "pm2 stop pm2.prod.config.js",
     "logs": "yarn logs:output && echo '\\n\\n' && yarn logs:error",
     "logs:output": "echo 'output.log:\\n' && cat ./logs/output.log",
     "logs:error": "echo 'error.log\\n' && cat ./logs/error.log",
@@ -40,7 +40,5 @@
     "eslint": "^7.0.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
-    "forever": "^2.0.0",
-    "nodemon": "^2.0.3"
   }
 }
