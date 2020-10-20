@@ -1,5 +1,5 @@
 const {
-  MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB, MONGO_SOURCE = 'admin', MONGO_SERVER = 'localhost', MONGO_PORT = '27017',
+  MONGO_USERNAME, MONGO_PASSWORD, MONGO_DB, MONGO_SOURCE = 'admin', MONGO_HOST = 'localhost', MONGO_PORT = '27017',
 } = process.env;
 
 if (!MONGO_USERNAME || !MONGO_PASSWORD || !MONGO_DB) {
@@ -19,7 +19,7 @@ const mongoDbConnectOptions = {
   useFindAndModify: false,
   useUnifiedTopology: true,
 };
-const mongoDBbUrl = `mongodb://${MONGO_SERVER}:${MONGO_PORT}/${MONGO_DB}`;
+const mongoDBbUrl = `mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`;
 
 module.exports = {
   mongoDbConnectOptions,
