@@ -26,6 +26,10 @@ const CustomerSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  hasRequestedControl: {
+    type: Boolean,
+    default: false,
+  },
   token: {
     type: String,
     required: true,

@@ -3,7 +3,7 @@ const { ModelService } = require('./model.service');
 const { RoomSocketInstace } = require('../socket');
 const { memoryStorage } = require('../storage');
 const { Randoms, ObjectTransforms } = require('../../common');
-const { NotFoundError } = require('../../errors/general');
+const { NotFoundError, BadBodyError } = require('../../errors/general');
 
 class RoomService extends ModelService {
   constructor() {
@@ -102,6 +102,10 @@ class RoomService extends ModelService {
 
     // If turning off overtaking clear array
     if (customerBody.allowOvertaking === false) {
+      room.customers.forEach((customer) => {
+        customer.hasControl = false;
+        customer.hasRequestedControl = false;
+      });
       await memoryStorage.remove(this.getOvertakingKey(room._id));
     }
 
@@ -119,10 +123,18 @@ class RoomService extends ModelService {
       throw new NotFoundError('Room not found!');
     }
 
+    if (!room.allowOvertaking) {
+      throw new BadBodyError('Overtaking not allowed');
+    }
+
     const customer = this.getCustomer(room, userId);
 
     if (!customer) {
       throw new NotFoundError('Customer not found!');
+    }
+
+    if (customer.hasRequestedControl) {
+      return false;
     }
 
     const key = this.getOvertakingKey(roomId);
@@ -143,12 +155,17 @@ class RoomService extends ModelService {
 
     await memoryStorage.set(JSON.stringify(roomOvertakers));
 
+    customer.hasRequestedControl = true;
+
+    let gainedControl = false;
+
     if (roomOvertakers[0] === `${userId}`) {
       customer.hasControl = true;
-      await room.save();
-      return true;
+      gainedControl = true;
     }
-    return false;
+    await room.save();
+
+    return gainedControl;
   }
 
   async leaveControl(roomId, userId) {
@@ -162,6 +179,10 @@ class RoomService extends ModelService {
 
     if (!customer) {
       throw new NotFoundError('Customer not found!');
+    }
+
+    if (!customer.hasRequestedControl) {
+      return false;
     }
 
     const key = this.getOvertakingKey(roomId);
@@ -182,6 +203,10 @@ class RoomService extends ModelService {
 
     await memoryStorage.set(JSON.stringify(roomOvertakers));
 
+    customer.hasRequestedControl = false;
+
+    let previouslyHadControl = false;
+
     // If he had control
     if (customer.hasControl) {
       customer.hasControl = false;
@@ -189,10 +214,12 @@ class RoomService extends ModelService {
         const newTaker = this.getCustomer(room, roomOvertakers[0]);
         newTaker.hasControl = true;
       }
-      await room.save();
-      return true;
+      previouslyHadControl = true;
     }
-    return false;
+
+    await room.save();
+
+    return previouslyHadControl;
   }
 
   getOvertakingKey(roomId) {
