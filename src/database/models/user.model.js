@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema(
       select: false,
     },
   },
-  { timestamps: true }
+  { }
 );
 
 module.exports = {

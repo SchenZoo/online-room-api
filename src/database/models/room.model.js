@@ -36,7 +36,7 @@ const CustomerSchema = new Schema({
     select: false,
     immutable: true,
   },
-}, { timestamps: true });
+}, { });
 
 const HostSchema = new Schema({
   user: UserSchema,
@@ -50,7 +50,7 @@ const HostSchema = new Schema({
     select: false,
     immutable: true,
   },
-}, { timestamps: true });
+}, { });
 
 const RoomSchema = new Schema(
   {
@@ -79,7 +79,7 @@ const RoomSchema = new Schema(
     },
 
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 RoomSchema.virtual('participants').get(function () {
@@ -107,6 +107,7 @@ RoomSchema.pre('save', function () {
 
     Object.entries(SOCKET_EVENT_MAPPING).forEach(([prop, socketEvent]) => {
       if (modifiedPaths.includes(prop)) {
+        console.log(socketEvent, prop);
         RoomSocketInstace.sendEventInTeachingRoom(this, socketEvent, {
           [prop]: this[prop],
           room: this,

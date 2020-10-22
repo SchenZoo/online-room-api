@@ -117,7 +117,7 @@ class RoomService extends ModelService {
   }
 
   async takeControl(roomId, userId) {
-    const room = await this.findOne({ roomId });
+    const room = await this.findOne({ _id: roomId });
 
     if (!room) {
       throw new NotFoundError('Room not found!');
@@ -159,7 +159,7 @@ class RoomService extends ModelService {
 
     let gainedControl = false;
 
-    if (roomOvertakers[0] === `${userId}`) {
+    if (`${roomOvertakers[0]}` === `${userId}`) {
       customer.hasControl = true;
       gainedControl = true;
     }
@@ -169,7 +169,7 @@ class RoomService extends ModelService {
   }
 
   async leaveControl(roomId, userId) {
-    const room = await this.findOne({ roomId });
+    const room = await this.findOne({ _id: roomId });
 
     if (!room) {
       throw new NotFoundError('Room not found!');

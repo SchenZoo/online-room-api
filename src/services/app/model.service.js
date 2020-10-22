@@ -72,10 +72,12 @@ class ModelService {
    */
   async updateOne(query, partialDocument = {}) {
     const processedDocument = await this.partialDocumentTransformation(partialDocument, 'update');
-    const document = await this.Model.findOneAndUpdate(query, processedDocument, { new: true });
+    const document = await this.Model.findOne(query);
     if (!document) {
       throw new NotFoundError('Document not found!');
     }
+    ObjectTransforms.updateObject(document, processedDocument, true);
+    await document.save();
     return document;
   }
 

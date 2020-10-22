@@ -9,14 +9,15 @@ const { AuthorizedMongoListOptions } = require('../services/list_options');
 
 router.post('/:roomId/customers', jwtAuthMiddleware(), asyncMiddleware(customerJoinRoomHandler));
 router.delete('/:roomId/customers', jwtAuthMiddleware(), asyncMiddleware(customerLeaveRoomHandler));
-router.patch('/:roomId/customers/:customerId',
-  jwtAuthMiddleware(),
-  mapRequestPropMiddleware(['isVideoEnabled', 'isAudioEnabled'], 'keepSentProps'),
-  asyncMiddleware(updateRoomCustomerHandler));
 
 router.patch('/:roomId/customers/control',
   jwtAuthMiddleware(),
   asyncMiddleware(customerChangeRoomControlHandler));
+
+router.patch('/:roomId/customers/:customerId',
+  jwtAuthMiddleware(),
+  mapRequestPropMiddleware(['isVideoEnabled', 'isAudioEnabled'], 'keepSentProps'),
+  asyncMiddleware(updateRoomCustomerHandler));
 
 
 router.post('/', jwtAuthMiddleware(), asyncMiddleware(createRoomHandler));
