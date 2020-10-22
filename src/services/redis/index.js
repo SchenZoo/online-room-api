@@ -1,7 +1,7 @@
-const { RedisPubClient, RedisCacheClient, RedisSubClient } = require('./instances');
+const { RedisPubClient, RedisMemoryClient, RedisSubClient } = require('./instances');
 
 module.exports = {
-  RedisCacheClient,
+  RedisMemoryClient,
   RedisPubClient,
   RedisSubClient,
 };

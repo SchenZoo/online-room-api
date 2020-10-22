@@ -2,7 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const shell = require('shelljs');
-const md5 = require('md5');
+const { Randoms } = require('../../common');
 const {
   DEFAULT_FILE_LIMIT_SIZE,
   DEFAULT_FILE_PATH,
@@ -38,7 +38,7 @@ const localFilesUploadMiddleware = (options) => {
         cb(null, relativePath);
       },
       filename(req, file, cb) {
-        const fileName = md5(process.hrtime.bigint().toString());
+        const fileName = Randoms.getRandomString();
         const ext = path.extname(file.originalname);
         const newFileName = `${fileName}${ext}`;
         cb(null, newFileName);

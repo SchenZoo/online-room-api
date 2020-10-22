@@ -1,13 +1,15 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 const { MONGO_MODEL_NAMES } = require('../../constants/mongo/model_names');
 
 
 const UserSchema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      required: true,
+    },
     username: {
       type: String,
-      unique: true,
       required: true,
     },
     password: {
@@ -15,14 +17,8 @@ const UserSchema = new mongoose.Schema(
       select: false,
     },
   },
-  { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } }
+  { timestamps: true }
 );
-
-UserSchema.statics.hashPassword = (password) => bcrypt.hashSync(password, 8);
-UserSchema.statics.checkPassword = function (passwordPlan, passwordEncrypted) {
-  return bcrypt.compareSync(passwordPlan, passwordEncrypted);
-};
-
 
 module.exports = {
   UserModel: mongoose.model(MONGO_MODEL_NAMES.User, UserSchema),

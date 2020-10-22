@@ -1,9 +1,9 @@
-const { DefaultSocketInstance } = require('./default');
-const { SocketFactory } = require('./socket_factory');
-const { SocketInstance } = require('./socket_instance');
+const { RoomP2PSocketInstance } = require('./instances/p2p_instance');
+const { RoomSocketInstace } = require('./instances/room_instance');
+const { SocketProxy } = require('./socket_proxy');
 
 module.exports = {
-  DefaultSocketInstance,
-  SocketFactory,
-  SocketInstance,
+  RoomP2PSocketInstance,
+  RoomSocketInstace,
+  SocketProxy,
 };

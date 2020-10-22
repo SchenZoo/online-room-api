@@ -1,9 +1,9 @@
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const path = require('path');
-const md5 = require('md5');
-const { AWS_BUCKET_NAME } = require('../../config/aws-s3');
-const { s3DefaultClient } = require('../../services/aws-s3');
+const { Randoms } = require('../../common');
+const { AWS_BUCKET_NAME } = require('../../config/aws_s3');
+const { s3DefaultClient } = require('../../services/aws_s3');
 const {
   DEFAULT_CACHE_SECONDS,
   DEFAULT_FILE_LIMIT_SIZE,
@@ -35,7 +35,7 @@ const s3fileUploadMiddleware = (options = {}) => {
       contentType: multerS3.AUTO_CONTENT_TYPE,
       cacheControl: `max-age=${DEFAULT_CACHE_SECONDS}`,
       key(req, file, cb) {
-        const fileName = md5(process.hrtime.bigint().toString());
+        const fileName = Randoms.getRandomString();
         const ext = path.extname(file.originalname);
         const newFileName = `${fileName}${ext}`;
         const fullPath = getFilePath(newFileName) || `${DEFAULT_FILE_PATH}/${newFileName}`;

@@ -1,18 +1,17 @@
 const http = require('http');
-const { initializeEnvironment } = require('./src/common/environment');
+const { Environment } = require('./src/common');
 
-initializeEnvironment();
+Environment.initializeEnvironment();
 
-require('./src/polyfills');
 require('./src/database/connections');
-const { SocketFactory } = require('./src/services/socket');
+const { SocketProxy } = require('./src/services/socket');
 
 const app = require('./src/app');
 
 const port = process.env.PORT || '3000';
 const server = http.createServer(app);
 server.listen(port);
-SocketFactory.initializeSocketFromExpressServer(server);
+SocketProxy.initializeSocketFromExpressServer(server);
 
 server.once('listening', () => {
   console.log(`Server started port:${port}`);

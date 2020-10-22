@@ -4,22 +4,26 @@ initializeEnvironment();
 
 
 require('../../database/connections');
-const { UserModel } = require('../../database/models');
+const { userService } = require('../../services/app');
 
 (async () => {
   try {
-    await UserModel.create(...[
+    const hashedPassword = userService.hashPassword('asdlolasd');
+    await userService.create(...[
       {
+        name: 'Aleksandar Stankovic',
         username: 'stane',
-        password: UserModel.hashPassword('asdlolasd'),
+        password: hashedPassword,
       },
       {
+        name: 'Veljko Stamenkovic',
         username: 'velja',
-        password: UserModel.hashPassword('asdlolasd'),
+        password: hashedPassword,
       },
       {
+        name: 'Ugljesa Stanisic',
         username: 'uglja',
-        password: UserModel.hashPassword('asdlolasd'),
+        password: hashedPassword,
       },
     ]);
   } catch (error) {

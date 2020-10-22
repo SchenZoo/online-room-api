@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const { UserModel } = require('../../database/models');
+const { userService } = require('../../services/app');
+const { Encryptions } = require('../../common');
 const { AuthenticateError } = require('../../errors/general');
 
 module.exports = () => async (req, res, next) => {
@@ -16,8 +16,8 @@ module.exports = () => async (req, res, next) => {
     } catch (e) {
       return next(new AuthenticateError('Invalid Authorization header format. Format is "{AUTHORIZATION_TYPE} {TOKEN|API_KEY}". For jwt authorization use Bearer type'));
     }
-    const { _id } = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await UserModel.findById(_id);
+    const { _id } = Encryptions.verifyJWT(token, process.env.JWT_SECRET);
+    const user = await userService.findOne({ _id });
     if (user) {
       req.user = user;
     } else {

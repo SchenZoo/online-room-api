@@ -6,6 +6,6 @@ module.exports = {
   apiKeyAuthMiddleware: require('./authenticate/api_key_auth.middleware'),
   multiChoiceMiddleware: require('./multi_choice.middleware'),
   propertyFilterMiddleware: require('./request_property_filter.middleware'),
-  cacheClearMiddleware: require('./cache/clear_cache.middleware'),
+  mapRequestPropMiddleware: require('./mappers/map_request_body.middleware'),
   ...require('./multer'),
 };

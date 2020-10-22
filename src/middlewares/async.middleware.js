@@ -1,7 +1,7 @@
 const fs = require('fs');
 
-const { s3DefaultClient } = require('../services/aws-s3');
-const { AWS_BUCKET_NAME } = require('../config/aws-s3');
+const { s3DefaultClient } = require('../services/aws_s3');
+const { AWS_BUCKET_NAME } = require('../config/aws_s3');
 
 
 /**

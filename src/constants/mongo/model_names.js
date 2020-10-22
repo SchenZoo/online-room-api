@@ -1,6 +1,8 @@
 const MONGO_MODEL_NAMES = {
   User: 'User',
   Room: 'Room',
+  ChatMessage: 'ChatMessage',
+  Whiteboard: 'Whiteboard',
 };
 
 module.exports = {

@@ -48,10 +48,6 @@ Check for lint errors using eslint and try to autofix them
 
 ### Commands:
 
-#### `yarn cache:clear`
-
-Clear cache from Redis
-
 ### Seeders:
 
 #### `yarn seed:users`

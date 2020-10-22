@@ -1,24 +1,20 @@
-const { SocketInstance } = require('./socket_instance');
-const { authorizeUser } = require('./global_handlers');
-const { RoomModel } = require('../../database/models');
+const { SocketInstance } = require('../socket_instance');
+const { authorizeUser } = require('../global_handlers');
 
-const {
-  SOCKET_EVENT_NAMES,
-} = require('../../constants/socket/event_names.socket');
-const { SOCKET_ROOMS } = require('../../constants/socket/rooms.socket');
 
-const DefaultSocketInstance = new SocketInstance('/');
+const RoomP2PSocketInstance = new SocketInstance('/rooms-p2p');
 
-DefaultSocketInstance.initialize(async (socketClient) => {
+const { SOCKET_EVENT_NAMES, SOCKET_ROOMS } = RoomP2PSocketInstance;
+
+RoomP2PSocketInstance.initialize(async (socketClient) => {
   try {
     await authorizeUser(socketClient);
-    const { user } = socketClient;
-    const userId = `${user._id}`;
+    console.log('Connected to p2p', socketClient.userId);
     socketClient.on(
       SOCKET_EVENT_NAMES.WEBRTC_SEND_OFFER,
       ({ offer, offerSender, offerReceiver }) => {
         console.log(`Offer : (${offerSender})->(${offerReceiver})`);
-        DefaultSocketInstance.sendEventInRoom(
+        RoomP2PSocketInstance.sendEventInRoom(
           SOCKET_ROOMS.USER_ROOM(offerReceiver),
           SOCKET_EVENT_NAMES.WEBRTC_RECEIVE_OFFER,
           {
@@ -33,7 +29,7 @@ DefaultSocketInstance.initialize(async (socketClient) => {
       SOCKET_EVENT_NAMES.WEBRTC_SEND_ANSWER,
       ({ answer, answerSender, answerReceiver }) => {
         console.log(`Answer : (${answerSender})->(${answerReceiver})`);
-        DefaultSocketInstance.sendEventInRoom(
+        RoomP2PSocketInstance.sendEventInRoom(
           SOCKET_ROOMS.USER_ROOM(answerReceiver),
           SOCKET_EVENT_NAMES.WEBRTC_RECEIVE_ANSWER,
           {
@@ -49,7 +45,7 @@ DefaultSocketInstance.initialize(async (socketClient) => {
       SOCKET_EVENT_NAMES.WEBRTC_SEND_CANDIDATE,
       ({ candidate, candidateSender, candidateReceiver }) => {
         console.log(`Candidate : (${candidateSender})->(${candidateReceiver})`);
-        DefaultSocketInstance.sendEventInRoom(
+        RoomP2PSocketInstance.sendEventInRoom(
           SOCKET_ROOMS.USER_ROOM(candidateReceiver),
           SOCKET_EVENT_NAMES.WEBRTC_RECEIVE_CANDIDATE,
           {
@@ -62,14 +58,7 @@ DefaultSocketInstance.initialize(async (socketClient) => {
     );
 
     socketClient.on('disconnect', async () => {
-      DefaultSocketInstance.sendEvent(
-        SOCKET_EVENT_NAMES.USER_DISCONNECTED,
-        userId
-      );
-      await RoomModel.updateMany(
-        { users: { $elemMatch: { _id: userId } } },
-        { $pull: { users: { _id: userId } } }
-      );
+      console.log('User disconnected from P2P socket instance');
     });
   } catch (err) {
     console.log('Socket user not authorized ', err);
@@ -77,5 +66,5 @@ DefaultSocketInstance.initialize(async (socketClient) => {
 });
 
 module.exports = {
-  DefaultSocketInstance,
+  RoomP2PSocketInstance,
 };

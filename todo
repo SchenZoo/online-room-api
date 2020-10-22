@@ -1,0 +1,21 @@
+IMPLEMENTED:
+   CRUD:
+      - CRUD users @done
+      - CRUD room @done
+      - CRUD room participants @done
+      - PUT change board content
+      - POST enable/disable others control 
+      - POST take over control (only if others control and someone hasn't taken yet) 
+   SOCKET:
+      - SOCKET join/leave room @done
+
+
+
+TEST: 
+   - CRUD users @done
+   - CRUD room @done
+   - CRUD room participants @done
+   - PUT change board content
+   - POST enable/disable others control 
+   - POST take over control (only if others control and someone hasn't taken yet) 
+   - SOCKET join/leave room

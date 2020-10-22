@@ -1,5 +1,5 @@
 const { AuthenticateError } = require('../../errors/general');
-const { UserModel } = require('../../database/models');
+const { userService } = require('../../services/app');
 
 /**
  * @param {{username:string,password:string}|undefined} credentials credentials used to verify user if not find user in User collection
@@ -32,9 +32,10 @@ function basicAuthMiddleware(credentials) {
         req.username = username;
         return next();
       }
-      // Use User model to verify
-      const user = await UserModel.findOne({ username }).select('+password');
-      if (!user || !UserModel.checkPassword(password, user.password)) {
+
+      const user = await userService.findOne({ username }).select('+password');
+      const passwordMatches = await userService.checkPassword(password, user.password);
+      if (!user || !passwordMatches) {
         throw new Error();
       }
       req.user = user;

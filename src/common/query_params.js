@@ -1,7 +1,7 @@
 
-const { normalizeValue } = require('../normalize_value');
+const { normalizeValue } = require('./normalizations');
 
-const PAGINATION_PROPERTIES = ['skip', 'page', 'limit', 'searchString', 'sortCriteria', 'sortOrder', 'sortDirection'];
+const PAGINATION_PROPERTIES = ['skip', 'page', 'limit', 'searchString', 'sort'];
 
 const MONGO_QUERY_SPECIAL_PROPS = ['$or', '$and', '$not', '$nor', '$nin', '$in', '$eq'];
 
