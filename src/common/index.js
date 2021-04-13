@@ -3,9 +3,10 @@ const Environment = require('./environment');
 const Normalizations = require('./normalizations');
 const Encryptions = require('./encryptions');
 const Randoms = require('./randoms');
-const QueryParams = require('./query_params');
 const RegExp = require('./reg_exp');
 const Batch = require('./batch');
+const QueryParams = require('./query_params');
+const FileSystem = require('./file_system');
 
 module.exports = {
   Batch,
@@ -16,4 +17,5 @@ module.exports = {
   QueryParams,
   RegExp,
   Randoms,
+  FileSystem,
 };

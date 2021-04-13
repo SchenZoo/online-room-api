@@ -1,7 +1,5 @@
-const localFilesUploadMiddleware = require('./local_files.middleware');
-const s3fileUploadMiddleware = require('./s3_files.middleware');
+const fileUploadMiddleware = require('./file_upload.middleware');
 
 module.exports = {
-  s3fileUploadMiddleware,
-  localFilesUploadMiddleware,
+  fileUploadMiddleware,
 };

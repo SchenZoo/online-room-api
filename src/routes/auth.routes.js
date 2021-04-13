@@ -1,22 +1,46 @@
 const express = require('express');
 
+const { asyncMiddleware, managerJwtAuthMiddleware } = require('../middlewares');
+const { UserService, ManagerService } = require('../services/app');
+
+
 const router = express.Router();
-const { userService } = require('../services/app');
-const { asyncMiddleware } = require('../middlewares');
 
-router.post('/login/token', asyncMiddleware(loginUsingTokenHandler));
-router.post('/login/credentials', asyncMiddleware(loginUsingCredentialsHandler));
+router.post('/login/users', asyncMiddleware(loginUserHandler));
+router.post('/login/managers', asyncMiddleware(loginManagerHandler));
+router.post('/login-as/companies/:id', managerJwtAuthMiddleware(), asyncMiddleware(loginAsCompanyUserHandler));
 
-async function loginUsingCredentialsHandler(req, res) {
+async function loginUserHandler(req, res) {
   const { username, password } = req.body;
-  const loginData = await userService.loginUsingCredentials(username, password);
-  return res.json(loginData);
+
+  const { token, user } = await UserService.loginUsingCredentials(username, password);
+
+  return res.json({
+    user,
+    token,
+  });
 }
 
-async function loginUsingTokenHandler(req, res) {
-  const { token } = req.body;
-  const loginData = await userService.loginUsingRoomToken(token);
-  return res.json(loginData);
+async function loginManagerHandler(req, res) {
+  const { username, password } = req.body;
+
+  const { token, manager } = await ManagerService.loginUsingCredentials(username, password);
+
+  return res.json({
+    manager,
+    token,
+  });
+}
+
+async function loginAsCompanyUserHandler(req, res) {
+  const { params: { id }, managerId } = req;
+
+  const { token, user } = await UserService.loginUsingManager(id, managerId);
+
+  return res.json({
+    user,
+    token,
+  });
 }
 
 module.exports = router;

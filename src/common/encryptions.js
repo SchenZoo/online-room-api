@@ -20,12 +20,19 @@ function checkPassword(passwordPlain, passwordEncrypted) {
   return bcrypt.compare(passwordPlain, passwordEncrypted);
 }
 
-function signJWT(payload, secret) {
-  return jwt.sign(payload, secret);
+async function signJWT(payload, secret) {
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(data);
+    });
+  });
 }
 
-function verifyJWT(payload, secret) {
-  return jwt.verify(payload, secret);
+function verifyJWT(token, secret) {
+  return jwt.verify(token, secret);
 }
 
 

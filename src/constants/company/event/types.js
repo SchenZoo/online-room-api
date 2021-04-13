@@ -1,0 +1,15 @@
+const EVENT_ACCESS_TYPES = {
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+};
+
+const EVENT_CARDINALITY_TYPE = {
+  PTP: 'PTP',
+  GROUP: 'GROUP',
+};
+
+
+module.exports = {
+  EVENT_ACCESS_TYPES,
+  EVENT_CARDINALITY_TYPE,
+};

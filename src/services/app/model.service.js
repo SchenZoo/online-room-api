@@ -1,8 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 const mongoose = require('mongoose');
 // eslint-disable-next-line no-unused-vars
-const { MongoListOptions } = require('../list_options');
-const { ObjectTransforms, RegExp: { escapeRegExp } } = require('../../common');
+const { ObjectTransforms, QueryParams } = require('../../common');
 const { NotFoundError } = require('../../errors/general');
 
 class ModelService {
@@ -20,8 +19,17 @@ class ModelService {
    * @param {any} partialDocument
    * @param {'create'|'update'} operationType
    */
-  async partialDocumentTransformation(partialDocument) {
+  async preSaveDocTransform(partialDocument) {
     return partialDocument;
+  }
+
+  /**
+   *
+   * @param {any} document
+   * @param {'create'|'update'} operationType
+   */
+  async postSaveDocTransform(document) {
+    return document;
   }
 
   /**
@@ -48,10 +56,13 @@ class ModelService {
   /**
    *
    * @param {any} partialDocument
+   *
+   * @returns {Promise<mongoose.Document>}
    */
   async create(partialDocument) {
-    const processedDocument = await this.partialDocumentTransformation(partialDocument, 'create');
-    return new this.Model(processedDocument).save();
+    const processedDocument = await this.preSaveDocTransform(partialDocument, 'create');
+    const document = await new this.Model(processedDocument).save();
+    return this.postSaveDocTransform(document);
   }
 
   /**
@@ -60,9 +71,10 @@ class ModelService {
    * @param {any} partialDocument
    */
   async updateObject(document, partialDocument = {}) {
-    const processedDocument = await this.partialDocumentTransformation(partialDocument, 'update');
+    const processedDocument = await this.preSaveDocTransform(partialDocument, 'update');
     ObjectTransforms.updateObject(document, processedDocument, true);
-    return document.save();
+    await document.save();
+    return this.postSaveDocTransform(document);
   }
 
   /**
@@ -71,14 +83,14 @@ class ModelService {
    * @param {any} partialDocument
    */
   async updateOne(query, partialDocument = {}) {
-    const processedDocument = await this.partialDocumentTransformation(partialDocument, 'update');
-    const document = await this.Model.findOne(query);
+    const processedDocument = await this.preSaveDocTransform(partialDocument, 'update');
+    const document = await this.findOne(query);
     if (!document) {
       throw new NotFoundError('Document not found!');
     }
     ObjectTransforms.updateObject(document, processedDocument, true);
     await document.save();
-    return document;
+    return this.postSaveDocTransform(document);
   }
 
   /**
@@ -101,60 +113,131 @@ class ModelService {
     return document;
   }
 
-
   /**
-   *
-   * @param {MongoListOptions} listOptions
-   * @param {string} projection
-   * @param {mongoose.QueryFindBaseOptions} findOptions
-   */
-  async find(listOptions, projection, findOptions) {
+ *
+ * @param {Record<string,string>} queryParams
+ * @param {{additionalQuery: any, additionalForbiddenProps: [], findOptions:mongoose.QueryFindBaseOptions}} options
+ */
+  async getPaginated(queryParams, options = {}) {
+    const { additionalQuery = {}, additionalForbiddenProps = [], findOptions = {} } = options;
+
     const {
-      mongoQuery, skip, limit, sort,
-    } = listOptions;
-    let { searchString } = listOptions;
-    searchString = searchString && searchString.trim();
+      mongoQuery,
+      skip,
+      limit,
+      sort,
+      searchString,
+      projection,
+      relations,
+    } = QueryParams.normalizeQueryOptions(queryParams, { transformOpts: { excludePagination: true } });
 
-    const query = {
+    const {
+      searchProps,
+      sortProps,
+      relationProps,
+      forbiddenProps = [],
+    } = this.Model.schema.options;
+
+    const findQuery = QueryParams.searchStringToMongoQuery(searchString, searchProps, {
       ...mongoQuery,
-    };
+      ...additionalQuery,
+    });
 
-    const { searchProps } = this.Model.schema.options;
-    if (searchString && searchProps) {
-      const regex = new RegExp(escapeRegExp(searchString)
-        .split(' ')
-        .map((regexp) => `(.*${regexp}.*)`)
-        .join('|'), 'i');
-      const searchStringQueries = searchProps.map((searchProp) => (
-        {
-          [searchProp]: { $regex: regex },
-        }
-      ));
-      if (query.$or) {
-        query.$and = [{ $or: query.$or }, { $or: searchStringQueries }];
-      } else {
-        query.$or = searchStringQueries;
-      }
-    }
+    const countQuery = this.Model.countDocuments(findQuery);
 
-    const countQuery = this.Model.countDocuments(query);
-    const dataQuery = this.Model.find(query, projection, findOptions)
+    const projectionFiltered = this.filterProjection(projection, [...forbiddenProps, ...additionalForbiddenProps]);
+
+    const dataQuery = this.Model.find(findQuery, undefined, {
+      projection: projectionFiltered.join(' '),
+      ...findOptions,
+    })
       .skip(skip)
       .limit(limit);
 
-    if (sort) {
-      dataQuery.sort(sort);
+    if (sort && sortProps) {
+      dataQuery.sort(ObjectTransforms.pick(sort, sortProps, true));
+    } else {
+      dataQuery.sort({ _id: -1 });
+    }
+
+    if (relations && relationProps) {
+      dataQuery.populate(relations.filter((el) => relationProps.includes(el)));
     }
 
     const [items, count] = await Promise.all([dataQuery, countQuery]);
 
     return {
       items,
+      itemsTotal: count,
       totalPages: Math.ceil(count / limit),
       currentPage: Math.floor(skip / limit) + 1,
     };
   }
+
+  /**
+   *
+   * @param {Record<string,string>} queryParams
+   * @param {{additionalQuery: any, additionalForbiddenProps: [], findOptions:mongoose.QueryFindBaseOptions}} options
+   */
+  async getOne(queryParams, options = {}) {
+    const { additionalQuery = {}, additionalForbiddenProps = [], findOptions = {} } = options;
+
+    const {
+      mongoQuery,
+      searchString,
+      projection,
+      relations,
+    } = QueryParams.normalizeQueryOptions(queryParams, { transformOpts: { excludePagination: true } });
+
+    const {
+      searchProps,
+      relationProps,
+      forbiddenProps = [],
+    } = this.Model.schema.options;
+
+    const findQuery = QueryParams.searchStringToMongoQuery(searchString, searchProps, {
+      ...mongoQuery,
+      ...additionalQuery,
+    });
+
+    const projectionFiltered = this.filterProjection(projection, [...forbiddenProps, ...additionalForbiddenProps]);
+
+    const document = await this.findOne(findQuery, undefined, {
+      projection: projectionFiltered,
+      ...findOptions,
+    });
+
+    if (!document) {
+      throw new NotFoundError(`${this.Model.modelName} not found!`, true);
+    }
+
+    if (relations && relationProps) {
+      document.populate(relations.filter((el) => relationProps.includes(el)));
+      await document.execPopulate();
+    }
+
+    return document;
+  }
+
+  filterProjection(projection, forbiddenFields) {
+    if (!forbiddenFields) {
+      return;
+    }
+    const defaultForbidden = forbiddenFields.map((field) => `-${field}`);
+    if (!projection) {
+      return defaultForbidden;
+    }
+    const excludingMode = projection.every((field) => field.startsWith('-'));
+    const projectionWithoutSigns = projection.map((field) => field.replace('-', ''));
+    if (excludingMode) {
+      return [...defaultForbidden, ...projectionWithoutSigns.map((field) => `-${field}`)];
+    }
+    const filteredProjection = projectionWithoutSigns
+      .filter((field) => forbiddenFields.every((forbiddenField) => !field.startsWith(forbiddenField)));
+    return filteredProjection.length ? filteredProjection : defaultForbidden;
+  }
 }
+
 
 module.exports = {
   ModelService,

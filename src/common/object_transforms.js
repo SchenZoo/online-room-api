@@ -1,16 +1,14 @@
 const set = require('lodash.set');
 const get = require('lodash.get');
-
 /**
  *
  * @param {any} object object to get props from
  * @param {Array} props array of props you want to get
  * @param {boolean} removeUndefined
  */
-function getProps(object, props = [], removeUndefined = true) {
+function pick(object, props = [], removeUndefined = true) {
   if (!object) {
-    console.warn('Empty getProps was called');
-    return {};
+    return object;
   }
   object = object.toObject ? object.toObject() : object;
   const objectWithSentProps = {};
@@ -22,10 +20,27 @@ function getProps(object, props = [], removeUndefined = true) {
   return objectWithSentProps;
 }
 
+function shallowPick(object, props = [], removeUndefined = true) {
+  if (!object) {
+    return object;
+  }
+  object = object.toObject ? object.toObject() : object;
+  const objectWithSentProps = {};
+  props.forEach((prop) => {
+    if (!removeUndefined || get(object, prop) !== undefined) {
+      if (object[prop]) {
+        objectWithSentProps[prop] = object[prop];
+      }
+    }
+  });
+  return objectWithSentProps;
+}
+
 /**
  *
  * @param {any} object object to remove props from
  * @param {Array} unwantedProps  array of props you want to remove
+ * @returns New Object with removed props
  */
 function removeProps(object, unwantedProps = []) {
   if (!object) {
@@ -50,9 +65,15 @@ function removeProps(object, unwantedProps = []) {
  */
 function updateObject(mainObject = {}, updateBody = {}, directly = false) {
   const mergedObject = directly ? mainObject : JSON.parse(JSON.stringify(mainObject));
+  if (Array.isArray(updateBody)) {
+    if (JSON.stringify(mainObject) !== JSON.stringify(updateBody)) {
+      return JSON.parse(JSON.stringify(updateBody));
+    }
+    return mergedObject;
+  }
   Object.entries(updateBody).forEach(([updatingProp, updatingPropValue]) => {
     if (updatingPropValue && mergedObject[updatingProp] && typeof updatingPropValue === 'object' && typeof mergedObject[updatingProp] === 'object') {
-      mergedObject[updatingProp] = updateObject(mergedObject[updatingProp], updatingPropValue);
+      mergedObject[updatingProp] = updateObject(mergedObject[updatingProp], updatingPropValue, directly);
     } else {
       mergedObject[updatingProp] = updatingPropValue;
     }
@@ -60,8 +81,36 @@ function updateObject(mainObject = {}, updateBody = {}, directly = false) {
   return mergedObject;
 }
 
+function removeUndefinedProps(object) {
+  const unwantedProps = [];
+  Object.keys(object).forEach((key) => {
+    if (!object[key]) {
+      unwantedProps.push(key);
+    }
+  });
+  return removeProps(object, unwantedProps);
+}
+
+function toPlainObject(object) {
+  if (object === undefined) { return object; }
+  return JSON.parse(JSON.stringify(object));
+}
+
+function getObjectPropertyPaths(object, initialPath = '') {
+  if (!object || typeof object !== 'object') {
+    return (initialPath) ? [initialPath] : [];
+  }
+
+  const prefix = initialPath ? `${initialPath}.` : '';
+  return Object.entries({ ...object }).reduce((acc, [key, value]) => [...acc, ...getObjectPropertyPaths(value, `${prefix}${key}`)], []);
+}
+
 module.exports = {
-  getProps,
+  pick,
   removeProps,
   updateObject,
+  removeUndefinedProps,
+  toPlainObject,
+  shallowPick,
+  getObjectPropertyPaths,
 };
