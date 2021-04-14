@@ -11,14 +11,16 @@ const ApiKeySchema = new Schema(
       type: String,
       required: true,
     },
-    key: {
-      type: String,
-      required: true,
-    },
     permissions: {
       type: String,
       required: true,
       enum: Object.values(API_KEY_PERMISSIONS),
+    },
+    value: {
+      type: String,
+      required: true,
+      immutable: true,
+      unique: true,
     },
     companyId: {
       type: Schema.Types.ObjectId,
