@@ -14,12 +14,16 @@ module.exports = () => async (req, res, next) => {
       if (!token) {
         throw new Error();
       }
+      if (req.managerJwtToken === token) {
+        return next();
+      }
     } catch (e) {
       return next(new AuthenticateError('Invalid Authorization header format. Format is "{AUTHORIZATION_TYPE} {TOKEN|API_KEY}". For manager jwt authorization use MBearer type', false));
     }
     const { _id } = Encryptions.verifyJWT(token, MANAGER_JWT_SECRET);
     const manager = await ManagerService.findOne({ _id });
     if (manager) {
+      req.managerJwtToken = token;
       req.manager = manager;
       req.managerId = `${manager._id}`;
     } else {

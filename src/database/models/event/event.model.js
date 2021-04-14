@@ -30,14 +30,12 @@ const EventParticipantSchema = new Schema({
   lastJoinedAt: {
     type: Date,
   },
-  ip: {
-    type: String,
-  },
   token: {
     type: String,
     required: true,
     select: false,
     immutable: true,
+    unique: true,
   },
 }, { timestamps: true });
 
@@ -45,7 +43,6 @@ const EventSchema = new Schema(
   {
     name: {
       type: String,
-      required: true,
     },
     startsAt: {
       type: Date,
@@ -58,26 +55,31 @@ const EventSchema = new Schema(
     seats: {
       type: Number,
       required: true,
+      min: 0,
+      max: 100,
     },
     accessType: {
       type: String,
       required: true,
       enum: Object.values(EVENT_ACCESS_TYPES),
+      default: EVENT_ACCESS_TYPES.CLOSED,
+    },
+    participants: {
+      type: [EventParticipantSchema],
+      required: true,
     },
     cardinalityType: {
       type: String,
       required: true,
       enum: Object.values(EVENT_CARDINALITY_TYPE),
-    },
-    participants: {
-      type: [EventParticipantSchema],
-      required: true,
+      immutable: true,
     },
     token: {
       type: String,
       required: true,
       select: false,
       immutable: true,
+      unique: true,
     },
     companyId: {
       type: mongoose.Types.ObjectId,
@@ -85,7 +87,7 @@ const EventSchema = new Schema(
       immutable: true,
     },
   },
-  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  { timestamps: true }
 );
 
 module.exports = {

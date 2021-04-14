@@ -1,4 +1,5 @@
 const { AuthenticateError } = require('../../errors/general');
+const { ApiKeyService } = require('../../services/app');
 
 module.exports = () => async (req, res, next) => {
   try {
@@ -11,22 +12,34 @@ module.exports = () => async (req, res, next) => {
           apiKey = authInfo;
         }
       }
+
       if (req.query[keyProperty]) {
         apiKey = req.query[keyProperty];
       }
+
       if (!apiKey) {
         throw new Error();
+      }
+
+      if (req.companyApiKey === apiKey) {
+        return next();
       }
     } catch (err) {
       return next(new AuthenticateError(`Invalid Authorization header format. Format is "{AUTHORIZATION_TYPE} {TOKEN|API_KEY}". For company api key authorization use ${keyProperty} type`, false));
     }
 
-    // :TODO find api key and company
-    // :TODO api key permissions
+    const apiKeyM = await ApiKeyService.findOne({
+      value: apiKey,
+    });
 
-    req.apiKey = apiKey;
+    req.companyApiKey = apiKey;
+    req.apiKey = apiKeyM;
+    req.apiKeyId = `${apiKeyM._id}`;
+    req.permissions = apiKeyM.permissions;
+    req.companyId = `${apiKeyM.companyId}`;
+
+    return next();
   } catch (exception) {
     return next(new AuthenticateError('Invalid api key'));
   }
-  return next();
 };

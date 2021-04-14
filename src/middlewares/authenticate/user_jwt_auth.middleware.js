@@ -14,18 +14,20 @@ module.exports = () => async (req, res, next) => {
       if (!token) {
         throw new Error();
       }
-      // :TODO check if already called
+      if (req.userJwtToken === token) {
+        return next();
+      }
     } catch (e) {
       return next(new AuthenticateError('Invalid Authorization header format. Format is "{AUTHORIZATION_TYPE} {TOKEN|API_KEY}". For jwt authorization use Bearer type', false));
     }
     const { _id, permissions } = Encryptions.verifyJWT(token, USER_JWT_SECRET);
     const user = await UserService.findOne({ _id });
     if (user) {
+      req.userJwtToken = token;
       req.user = user;
       req.permissions = permissions;
       req.userId = `${user._id}`;
       req.companyId = `${user.companyId}`;
-      // TODO save token is verified
     } else {
       throw new Error();
     }

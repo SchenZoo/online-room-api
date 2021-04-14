@@ -60,11 +60,11 @@ async function findHandler(req, res) {
   const { params: { id }, companyId, query } = req;
 
   return res.json({
-    user: await UserService.getOne(query, {
-      additionalQuery: {
-        companyId,
-        _id: id,
-      },
+    user: await UserService.getOne({
+      companyId,
+      _id: id,
+    }, {
+      query,
     }),
   });
 }

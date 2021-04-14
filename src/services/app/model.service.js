@@ -119,7 +119,11 @@ class ModelService {
  * @param {{additionalQuery: any, additionalForbiddenProps: [], findOptions:mongoose.QueryFindBaseOptions}} options
  */
   async getPaginated(queryParams, options = {}) {
-    const { additionalQuery = {}, additionalForbiddenProps = [], findOptions = {} } = options;
+    const {
+      additionalQuery = {}, additionalForbiddenProps = [], findOptions = {
+        lean: true,
+      },
+    } = options;
 
     const {
       mongoQuery,
@@ -177,10 +181,14 @@ class ModelService {
   /**
    *
    * @param {Record<string,string>} queryParams
-   * @param {{additionalQuery: any, additionalForbiddenProps: [], findOptions:mongoose.QueryFindBaseOptions}} options
+   * @param {{ query: Record<string,string>, additionalForbiddenProps: [], findOptions: mongoose.QueryFindBaseOptions}} options
    */
-  async getOne(queryParams, options = {}) {
-    const { additionalQuery = {}, additionalForbiddenProps = [], findOptions = {} } = options;
+  async getOne(query = {}, options = {}) {
+    const {
+      query: queryParams = {}, findOptions = {
+        lean: true,
+      }, additionalForbiddenProps = [],
+    } = options;
 
     const {
       mongoQuery,
@@ -197,7 +205,7 @@ class ModelService {
 
     const findQuery = QueryParams.searchStringToMongoQuery(searchString, searchProps, {
       ...mongoQuery,
-      ...additionalQuery,
+      ...query,
     });
 
     const projectionFiltered = this.filterProjection(projection, [...forbiddenProps, ...additionalForbiddenProps]);

@@ -3,7 +3,6 @@ const socket = require('socket.io');
 const pendingNamespaces = [];
 const pendingEvents = [];
 
-// :TODO add outside socket event sending using socket.io-emitter and socket.io-redis if required
 class SocketProxy {
   constructor() {
     this.namespaces = {};

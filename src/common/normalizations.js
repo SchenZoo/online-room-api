@@ -1,6 +1,4 @@
 function normalizeValue(value) {
-  // :TODO add dates filter
-  // :TODO add number filters
   switch (value) {
     case 'undefined':
       return undefined;

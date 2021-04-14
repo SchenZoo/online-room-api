@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { MONGO_MODEL_NAMES } = require('../../constants/mongo/model_names');
 const { WEBHOOK_EVENT_TYPES } = require('../../constants/company/webhook/event_types');
-const { addSearchableFields } = require('../plugins');
+const { addSearchableFields, addRelationFields } = require('../plugins');
 
 const { Schema } = mongoose;
 
@@ -51,10 +51,18 @@ const WebhookSchema = new Schema(
       index: 1,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
-WebhookSchema.plugin(addSearchableFields(['name']));
+WebhookSchema.virtual('logs', {
+  ref: MONGO_MODEL_NAMES.WebhookLog,
+  localField: '_id',
+  foreignField: 'webhookId',
+  justOne: false,
+});
+
+WebhookSchema.plugin(addRelationFields(['logs']));
+WebhookSchema.plugin(addSearchableFields(['name', 'requestUrl']));
 
 module.exports = {
   WebhookModel: mongoose.model(MONGO_MODEL_NAMES.Webhook, WebhookSchema),
