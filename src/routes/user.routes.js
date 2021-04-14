@@ -20,14 +20,14 @@ router.get('/current', userJwtAuthMiddleware(), asyncMiddleware(getCurrentUserHa
 
 router.use(hasCompanyAccessMiddleware());
 
-router.post('/', hasPermissionMiddleware(PERMISSIONS.CREATE_USERS), asyncMiddleware(createUserHandler));
-router.get('/', hasPermissionMiddleware(PERMISSIONS.READ_USERS), asyncMiddleware(getUsersHandler));
-router.get('/:id', hasPermissionMiddleware(PERMISSIONS.READ_USERS), asyncMiddleware(findUserHandler));
-router.patch('/:id', hasPermissionMiddleware(PERMISSIONS.UPDATE_USERS), asyncMiddleware(updateUserHandler));
-router.post('/:id/permissions', hasPermissionMiddleware(PERMISSIONS.UPDATE_USER_PERMISSIONS), asyncMiddleware(updateUserPermissionsHandler));
-router.delete('/:id', hasPermissionMiddleware(PERMISSIONS.DELETE_USERS), asyncMiddleware(deleteUserHandler));
+router.post('/', hasPermissionMiddleware(PERMISSIONS.CREATE_USERS), asyncMiddleware(createHandler));
+router.get('/', hasPermissionMiddleware(PERMISSIONS.READ_USERS), asyncMiddleware(getHandler));
+router.get('/:id', hasPermissionMiddleware(PERMISSIONS.READ_USERS), asyncMiddleware(findHandler));
+router.patch('/:id', hasPermissionMiddleware(PERMISSIONS.UPDATE_USERS), asyncMiddleware(updateHandler));
+router.post('/:id/permissions', hasPermissionMiddleware(PERMISSIONS.UPDATE_USER_PERMISSIONS), asyncMiddleware(updatePermissionsHandler));
+router.delete('/:id', hasPermissionMiddleware(PERMISSIONS.DELETE_USERS), asyncMiddleware(deleteHandler));
 
-async function createUserHandler(req, res) {
+async function createHandler(req, res) {
   const { companyId, body: userBody } = req;
 
   const user = await UserService.create({
@@ -40,7 +40,7 @@ async function createUserHandler(req, res) {
   });
 }
 
-async function getUsersHandler(req, res) {
+async function getHandler(req, res) {
   const { companyId, query } = req;
   return res.json(await UserService.getPaginated(query, {
     additionalQuery: {
@@ -56,7 +56,7 @@ async function getCurrentUserHandler(req, res) {
   });
 }
 
-async function findUserHandler(req, res) {
+async function findHandler(req, res) {
   const { params: { id }, companyId, query } = req;
 
   return res.json({
@@ -69,7 +69,7 @@ async function findUserHandler(req, res) {
   });
 }
 
-async function updateUserHandler(req, res) {
+async function updateHandler(req, res) {
   const {
     params: { id }, companyId, userId, body: userBody,
   } = req;
@@ -96,7 +96,7 @@ async function updateUserHandler(req, res) {
   });
 }
 
-async function updateUserPermissionsHandler(req, res) {
+async function updatePermissionsHandler(req, res) {
   const {
     params: { id }, companyId, body: permissions,
   } = req;
@@ -123,7 +123,7 @@ async function updateUserPermissionsHandler(req, res) {
   });
 }
 
-async function deleteUserHandler(req, res) {
+async function deleteHandler(req, res) {
   const { params: { id }, companyId, userId } = req;
 
   const user = await UserService.findOne({ _id: id, companyId });

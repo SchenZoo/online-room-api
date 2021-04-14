@@ -18,6 +18,7 @@ const WebhookSchema = new Schema(
       type: String,
       required: true,
       enum: ['POST', 'GET'],
+      default: 'POST',
     },
     headers: {
       type: new Schema({
@@ -30,10 +31,18 @@ const WebhookSchema = new Schema(
       type: [String],
       required: true,
       enum: Object.values(WEBHOOK_EVENT_TYPES),
+      validate: {
+        validator(value) {
+          return value.length !== 0;
+        },
+        message: 'Webhook must have at least one event type.',
+      },
     },
-    webhookSecret: {
+    secret: {
       type: String,
       required: true,
+      immutable: true,
+      unique: true,
     },
     companyId: {
       type: Schema.Types.ObjectId,

@@ -86,7 +86,7 @@ class ModelService {
     const processedDocument = await this.preSaveDocTransform(partialDocument, 'update');
     const document = await this.findOne(query);
     if (!document) {
-      throw new NotFoundError('Document not found!');
+      throw new NotFoundError(`${this.Model.modelName} not found!`, true);
     }
     ObjectTransforms.updateObject(document, processedDocument, true);
     await document.save();
@@ -108,7 +108,7 @@ class ModelService {
   async removeOne(query) {
     const document = await this.Model.findOneAndRemove(query);
     if (!document) {
-      throw new NotFoundError('Document not found!');
+      throw new NotFoundError(`${this.Model.modelName} not found!`, true);
     }
     return document;
   }

@@ -7,34 +7,34 @@ const {
   hasPermissionMiddleware,
 } = require('../middlewares');
 
-const { ApiKeyService } = require('../services/app');
+const { WebhookService } = require('../services/app');
 
 const router = express.Router();
 
 router.use(hasCompanyAccessMiddleware());
 
-router.post('/', hasPermissionMiddleware(PERMISSIONS.CREATE_API_KEYS), asyncMiddleware(createHandler));
-router.get('/', hasPermissionMiddleware(PERMISSIONS.READ_API_KEYS), asyncMiddleware(getHandler));
-router.get('/:id', hasPermissionMiddleware(PERMISSIONS.READ_API_KEYS), asyncMiddleware(findHandler));
-router.patch('/:id', hasPermissionMiddleware(PERMISSIONS.UPDATE_API_KEYS), asyncMiddleware(updateHandler));
-router.delete('/:id', hasPermissionMiddleware(PERMISSIONS.DELETE_API_KEYS), asyncMiddleware(deleteHandler));
+router.post('/', hasPermissionMiddleware(PERMISSIONS.CREATE_WEBHOOKS), asyncMiddleware(createHandler));
+router.get('/', hasPermissionMiddleware(PERMISSIONS.READ_WEBHOOKS), asyncMiddleware(getHandler));
+router.get('/:id', hasPermissionMiddleware(PERMISSIONS.READ_WEBHOOKS), asyncMiddleware(findHandler));
+router.patch('/:id', hasPermissionMiddleware(PERMISSIONS.UPDATE_WEBHOOKS), asyncMiddleware(updateHandler));
+router.delete('/:id', hasPermissionMiddleware(PERMISSIONS.DELETE_WEBHOOKS), asyncMiddleware(deleteHandler));
 
 async function createHandler(req, res) {
   const { companyId, body } = req;
 
-  const apiKey = await ApiKeyService.create({
+  const webhook = await WebhookService.create({
     ...body,
     companyId,
   });
 
   return res.json({
-    apiKey,
+    webhook,
   });
 }
 
 async function getHandler(req, res) {
   const { companyId, query } = req;
-  return res.json(await ApiKeyService.getPaginated(query, {
+  return res.json(await WebhookService.getPaginated(query, {
     additionalQuery: {
       companyId,
     },
@@ -45,7 +45,7 @@ async function findHandler(req, res) {
   const { params: { id }, companyId, query } = req;
 
   return res.json({
-    apiKey: await ApiKeyService.getOne(query, {
+    webhook: await WebhookService.getOne(query, {
       additionalQuery: {
         companyId,
         _id: id,
@@ -59,20 +59,20 @@ async function updateHandler(req, res) {
     params: { id }, companyId, body,
   } = req;
 
-  const apiKey = await ApiKeyService.updateOne({
+  const webhook = await WebhookService.updateOne({
     _id: id,
     companyId,
   }, body);
 
   return res.json({
-    apiKey,
+    webhook,
   });
 }
 
 async function deleteHandler(req, res) {
   const { params: { id }, companyId } = req;
 
-  await ApiKeyService.removeOne({ _id: id, companyId });
+  await WebhookService.removeOne({ _id: id, companyId });
 
   return res.json({
     deleted: true,

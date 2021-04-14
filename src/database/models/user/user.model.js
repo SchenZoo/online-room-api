@@ -23,6 +23,12 @@ const UserSchema = new mongoose.Schema(
       type: [String],
       required: true,
       enum: Object.values(USER_PERMISSIONS),
+      validate: {
+        validator(value) {
+          return value.length !== 0;
+        },
+        message: 'User must have permissions',
+      },
     },
     isMain: {
       type: Boolean,

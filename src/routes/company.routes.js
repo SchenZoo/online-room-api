@@ -12,15 +12,15 @@ const { CompanyService } = require('../services/app');
 
 const router = express.Router();
 
-router.post('/', asyncMiddleware(createCompanyHandler));
+router.post('/', asyncMiddleware(createHandler));
 router.get('/current',
   hasCompanyAccessMiddleware(),
   hasPermissionMiddleware(PERMISSIONS.READ_COMPANY),
-  asyncMiddleware(getCurrentCompanyHandler));
-router.get('/', managerJwtAuthMiddleware(), asyncMiddleware(getCompaniesHandler));
+  asyncMiddleware(getCurrentHandler));
+router.get('/', managerJwtAuthMiddleware(), asyncMiddleware(getHandler));
 
 
-async function createCompanyHandler(req, res) {
+async function createHandler(req, res) {
   const { companyData, userData } = req.body;
 
   const { company, user, token } = await CompanyService.create(companyData, userData);
@@ -32,7 +32,7 @@ async function createCompanyHandler(req, res) {
   });
 }
 
-async function getCurrentCompanyHandler(req, res) {
+async function getCurrentHandler(req, res) {
   const { companyId } = req;
 
   const company = await CompanyService.findOne({ _id: companyId });
@@ -42,7 +42,7 @@ async function getCurrentCompanyHandler(req, res) {
   });
 }
 
-async function getCompaniesHandler(req, res) {
+async function getHandler(req, res) {
   return res.json(await CompanyService.getPaginated(req.query));
 }
 

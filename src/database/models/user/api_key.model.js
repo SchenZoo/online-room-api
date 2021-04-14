@@ -12,9 +12,15 @@ const ApiKeySchema = new Schema(
       required: true,
     },
     permissions: {
-      type: String,
+      type: [String],
       required: true,
       enum: Object.values(API_KEY_PERMISSIONS),
+      validate: {
+        validator(value) {
+          return value.length !== 0;
+        },
+        message: 'Api Key must have permissions',
+      },
     },
     value: {
       type: String,

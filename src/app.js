@@ -33,6 +33,30 @@ app.use((error, req, res, next) => {
       error,
     });
   }
+
+  if (error.name === 'ValidationError') {
+    return res.status(422).json({
+      errors: error.errors,
+      message: error.message,
+    });
+  }
+
+  if (error.code === 11000) {
+    const fieldGroup = error.message.match(/index: (.*)_1 dup key/);
+    const field = fieldGroup ? fieldGroup[1] : 'unknown_field';
+    return res.status(409).json({
+      message:
+        `Document with "${field}" already exists`,
+      error: {
+        name: 'ConflictError',
+        statusCode: 409,
+        isFatal: true,
+      },
+    });
+  }
+
+  console.log('Global handler: ', error);
+
   return res.status(500).json({
     message: error.message,
     error,
