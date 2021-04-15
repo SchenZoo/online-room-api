@@ -30,7 +30,7 @@ module.exports = (keyOwner = KEY_OWNERS.DEFAULT, keyProperty = 'SApiKey') => asy
       return next();
     }
   } catch (e) {
-    return next(new AuthenticateError(`Invalid Authorization header format. Format is "{AUTHORIZATION_TYPE} {TOKEN|API_KEY}". For statis api key use ${keyProperty} type`, false));
+    return next(new AuthenticateError(`Invalid Authorization header format. Format is "{AUTHORIZATION_TYPE} {API_KEY}". For statis api key use ${keyProperty} type`, false));
   }
 
   if (API_KEYS[keyOwner].includes(apiKey)) {

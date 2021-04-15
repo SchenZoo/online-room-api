@@ -9,5 +9,6 @@ module.exports = {
   ...require('./mongodb'),
   ...require('./redis'),
   ...require('./server'),
-  ...require('./smtp'),
+  ...require('./email'),
+  ...require('./twilio'),
 };

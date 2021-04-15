@@ -1,9 +1,8 @@
 const SOCKET_EVENT_NAMES = {
-  AUTHORIZE: 'authorize',
-  UNAUTHORIZED: 'unauthorized',
-  AUTHORIZED: 'authorized',
+  AUTH: 'auth',
+  AUTH_SUCCESS: 'auth:success',
+  AUTH_FAIL: 'auth:fail',
   DISCONNECT: 'disconnect',
-  KICKED: 'kicked',
 
   WEBRTC_SEND_OFFER: 'webrtc-send-offer',
   WEBRTC_RECEIVE_OFFER: 'webrtc-receive-offer',
@@ -12,17 +11,8 @@ const SOCKET_EVENT_NAMES = {
   WEBRTC_SEND_CANDIDATE: 'webrtc-send-candidate',
   WEBRTC_RECEIVE_CANDIDATE: 'webrtc-receive-candidate',
 
-  ROOM_PARTICIPANT_CHANGED: 'room-participant-changed',
-  ROOM_HOST_CHANGED: 'room-host-changed',
-  ROOM_OVERTAKING_CHANGED: 'room-overtaking-changed',
-
-  ROOM_PARTICIPANT_JOIN: 'room-participant-join',
-
-  ROOM_PARTICIPANT_JOINED: 'room-participant-joined',
-  ROOM_PARTICIPANT_LEFT: 'room-participant-left',
-
-  ROOM_MESSAGE_CREATED: 'room-messagee-created',
-  WHITEBOARD_CHANGED: 'whiteboard-changed',
+  EVENT_MUTE_PARTICIPANT: 'event-mute-participant',
+  EVENT_KICK_PARTICIPANT: 'event-kick-participant',
 };
 
 module.exports = {

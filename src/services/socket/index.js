@@ -1,9 +1,7 @@
-const { RoomP2PSocketInstance } = require('./instances/p2p_instance');
-const { RoomSocketInstace } = require('./instances/room_instance');
-const { SocketProxy } = require('./socket_proxy');
+const { SocketService } = require('./socket.service');
+const { SocketIOAdapter } = require('./socketio.adapter');
 
 module.exports = {
-  RoomP2PSocketInstance,
-  RoomSocketInstace,
-  SocketProxy,
+  SocketService,
+  SocketIOAdapter,
 };

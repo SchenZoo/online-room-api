@@ -33,7 +33,6 @@ const EventParticipantSchema = new Schema({
   token: {
     type: String,
     required: true,
-    select: false,
     immutable: true,
     unique: true,
   },
@@ -77,7 +76,6 @@ const EventSchema = new Schema(
     token: {
       type: String,
       required: true,
-      select: false,
       immutable: true,
       unique: true,
     },

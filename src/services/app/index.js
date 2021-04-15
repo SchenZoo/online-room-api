@@ -1,3 +1,4 @@
+const { AuthService } = require('./auth.service');
 const { ManagerService } = require('./manager.service');
 const { CompanyService } = require('./company.service');
 const { UserService } = require('./user.service');
@@ -6,7 +7,11 @@ const { ApiKeyService } = require('./api_key.service');
 const { WebhookService } = require('./webhook.service');
 const { WebhookLogService } = require('./webhook_log.service');
 
+
+const { EventSocketService } = require('./socket/event.socket_service');
+
 module.exports = {
+  AuthService,
   ManagerService,
   CompanyService,
   UserService,
@@ -14,4 +19,5 @@ module.exports = {
   ApiKeyService,
   WebhookService,
   WebhookLogService,
+  EventSocketService,
 };

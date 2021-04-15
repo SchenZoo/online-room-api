@@ -25,10 +25,10 @@ module.exports = () => async (req, res, next) => {
         return next();
       }
     } catch (err) {
-      return next(new AuthenticateError(`Invalid Authorization header format. Format is "{AUTHORIZATION_TYPE} {TOKEN|API_KEY}". For company api key authorization use ${keyProperty} type`, false));
+      return next(new AuthenticateError(`Invalid Authorization header format. Format is "{AUTHORIZATION_TYPE} {API_KEY}". For company api key authorization use ${keyProperty} type`, false));
     }
 
-    const apiKeyM = await ApiKeyService.findOne({
+    const apiKeyM = await ApiKeyService.getOne({
       value: apiKey,
     });
 

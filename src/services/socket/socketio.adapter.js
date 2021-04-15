@@ -3,7 +3,7 @@ const socket = require('socket.io');
 const pendingNamespaces = [];
 const pendingEvents = [];
 
-class SocketProxy {
+class SocketIOAdapter {
   constructor() {
     this.namespaces = {};
     this.io = null;
@@ -14,7 +14,9 @@ class SocketProxy {
    *
    * */
   initializeSocketFromExpressServer(server) {
-    this.io = socket.listen(server);
+    this.io = socket(server, {
+      cors: '*',
+    });
     pendingNamespaces.forEach(({ namespaceName, connectionListener }) => {
       this.addNamespace(namespaceName, connectionListener);
     });
@@ -27,13 +29,14 @@ class SocketProxy {
         this.sendEvent(namespaceName, eventName, payload);
       }
     });
+    console.log('Socket server started');
   }
 
   addNamespace(namespaceName, connectionListener) {
     if (this.io) {
       const namespace = this.io.of(namespaceName);
       this.namespaces[namespaceName] = namespace;
-      namespace.on('connection', connectionListener);
+      namespace.on('connection', (socketClient) => connectionListener(socketClient));
     } else {
       pendingNamespaces.push({ namespaceName, connectionListener });
     }
@@ -56,8 +59,21 @@ class SocketProxy {
       });
     }
   }
+
+  async close() {
+    return new Promise((resolve) => {
+      if (this.io) {
+        this.io.close(() => {
+          console.log('Socket closed');
+          return resolve();
+        });
+      } else {
+        resolve();
+      }
+    });
+  }
 }
 
 module.exports = {
-  SocketProxy: new SocketProxy(),
+  SocketIOAdapter: new SocketIOAdapter(),
 };

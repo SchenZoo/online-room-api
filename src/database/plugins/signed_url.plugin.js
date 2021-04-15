@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-const { defaultS3Instance, FileStorageService } = require('../../services/file_storage');
+const { DefaultS3Service, FileStorageService } = require('../../services/file_storage');
 
 /**
  * Expands schema with urlPath field.
@@ -16,7 +16,7 @@ function addSignedUrlPlugin(keyPath, options) {
     urlPath,
     expiry = 3600 * 24,
     fallbackUrl = null,
-    storageService = defaultS3Instance,
+    storageService = DefaultS3Service,
   } = options;
   return (schema) => schema
     .virtual(urlPath)

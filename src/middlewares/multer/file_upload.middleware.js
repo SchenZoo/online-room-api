@@ -4,7 +4,7 @@ const md5 = require('md5');
 const mime = require('mime-types');
 
 const { AWS_BUCKET_NAME } = require('../../config');
-const { defaultS3Instance } = require('../../services/file_storage');
+const { DefaultS3Service } = require('../../services/file_storage');
 const { FilterError } = require('../../errors/general');
 
 const DEFAULT_FILE_PROPERTY = 'files';
@@ -27,7 +27,7 @@ const fileUploadMiddleware = (options = {}) => {
     transformers = [],
     mimeValidator,
     required = false,
-    storageInstance = defaultS3Instance,
+    RedisStorageService = DefaultS3Service,
   } = options;
   return (req, res, next) => {
     multer().single(fileProp)(req, res, async () => {
@@ -54,7 +54,7 @@ const fileUploadMiddleware = (options = {}) => {
 
       const transformedBuffer = await transformers.reduce(async (buffer, transformer) => transformer(buffer, mimeType), buffer);
 
-      const data = await storageInstance.uploadFile(`${filePath}/${newFileName}`, transformedBuffer, mimeType, containerName);
+      const data = await RedisStorageService.uploadFile(`${filePath}/${newFileName}`, transformedBuffer, mimeType, containerName);
       req.file = { ...data, mimeType, key: data.Key };
       next();
     });

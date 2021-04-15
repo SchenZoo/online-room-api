@@ -2,8 +2,8 @@ const { ModelService } = require('./model.service');
 const { UserModel } = require('../../database/models');
 const { Encryptions } = require('../../common');
 const { BadBodyError, ConflictError, NotFoundError } = require('../../errors/general');
-const { USER_JWT_SECRET } = require('../../config');
 const { USER_PERMISSIONS, MANAGER_LOGGING_IN_PERMISSIONS } = require('../../constants/company/user/permissions');
+const { AuthService } = require('./auth.service');
 
 class UserService extends ModelService {
   constructor() {
@@ -79,7 +79,7 @@ class UserService extends ModelService {
     return this.getUserAuthData(user);
   }
 
-  async getUserAuthData(user, limitedPermissions, tokenData = {}) {
+  async getUserAuthData(user, limitedPermissions, impersonatorId = undefined) {
     if (!user.permissions) {
       console.error('Calling getUserAuthData without loaded permissions');
       throw new BadBodyError('User has no permissions!');
@@ -89,7 +89,7 @@ class UserService extends ModelService {
       ? user.permissions.filter((perm) => limitedPermissions.includes(perm))
       : user.permissions;
 
-    const token = await this.signJWT(user._id, requestedPermissions, tokenData);
+    const token = await AuthService.signUserJwt(user._id, requestedPermissions, impersonatorId);
 
     const { password, permissions, ...userRest } = user.toObject();
     return {
@@ -106,12 +106,10 @@ class UserService extends ModelService {
     const user = await this.findOne({ companyId: id, isMain: true }, '+permissions');
 
     if (!user) {
-      throw NotFoundError('Company user not found!', true);
+      throw new NotFoundError('Company user not found!', true);
     }
 
-    return this.getUserAuthData(user, MANAGER_LOGGING_IN_PERMISSIONS, {
-      managerId,
-    });
+    return this.getUserAuthData(user, MANAGER_LOGGING_IN_PERMISSIONS, managerId);
   }
 
   async hashPassword(password) {
@@ -120,14 +118,6 @@ class UserService extends ModelService {
 
   async checkPassword(passwordPlain, passwordEncrypted) {
     return Encryptions.checkPassword(passwordPlain, passwordEncrypted);
-  }
-
-  async signJWT(userId, permissions, tokenData = {}) {
-    return Encryptions.signJWT({
-      _id: userId,
-      permissions,
-      ...tokenData,
-    }, USER_JWT_SECRET);
   }
 }
 

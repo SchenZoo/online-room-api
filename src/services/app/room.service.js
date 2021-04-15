@@ -1,7 +1,7 @@
 const { RoomModel } = require('../../database/models');
 const { ModelService } = require('./model.service');
 const { RoomSocketInstace } = require('../socket');
-const { memoryStorage } = require('../storage');
+const { MemoryStorageService } = require('../storage');
 const { Randoms, ObjectTransforms } = require('../../common');
 const { NotFoundError, BadBodyError } = require('../../errors/general');
 
@@ -106,7 +106,7 @@ class RoomService extends ModelService {
         customer.hasControl = false;
         customer.hasRequestedControl = false;
       });
-      await memoryStorage.remove(this.getOvertakingKey(room._id));
+      await MemoryStorageService.remove(this.getOvertakingKey(room._id));
     }
 
     return room.save();
@@ -139,7 +139,7 @@ class RoomService extends ModelService {
 
     const key = this.getOvertakingKey(roomId);
 
-    let roomOvertakers = await memoryStorage.get(key);
+    let roomOvertakers = await MemoryStorageService.get(key);
 
     if (roomOvertakers) {
       roomOvertakers = JSON.parse(roomOvertakers);
@@ -153,7 +153,7 @@ class RoomService extends ModelService {
 
     roomOvertakers.push(userId);
 
-    await memoryStorage.set(JSON.stringify(roomOvertakers));
+    await MemoryStorageService.set(JSON.stringify(roomOvertakers));
 
     customer.hasRequestedControl = true;
 
@@ -187,7 +187,7 @@ class RoomService extends ModelService {
 
     const key = this.getOvertakingKey(roomId);
 
-    let roomOvertakers = await memoryStorage.get(key);
+    let roomOvertakers = await MemoryStorageService.get(key);
 
     if (roomOvertakers) {
       roomOvertakers = JSON.parse(roomOvertakers);
@@ -201,7 +201,7 @@ class RoomService extends ModelService {
 
     roomOvertakers = roomOvertakers.filter((overtakerId) => `${overtakerId}` !== `${userId}`);
 
-    await memoryStorage.set(JSON.stringify(roomOvertakers));
+    await MemoryStorageService.set(JSON.stringify(roomOvertakers));
 
     customer.hasRequestedControl = false;
 

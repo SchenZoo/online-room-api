@@ -2,7 +2,7 @@ const { ModelService } = require('./model.service');
 const { MangerModel } = require('../../database/models');
 const { Encryptions } = require('../../common');
 const { NotFoundError, BadBodyError } = require('../../errors/general');
-const { MANAGER_JWT_SECRET } = require('../../config');
+const { AuthService } = require('./auth.service');
 
 
 class ManagerService extends ModelService {
@@ -33,7 +33,7 @@ class ManagerService extends ModelService {
       throw new BadBodyError('Invalid username/password!');
     }
     {
-      const token = await this.signJWT(manager._id);
+      const token = await AuthService.signManagerJwt(manager._id);
       const { password, ...managerRest } = manager.toObject();
       return {
         token,
@@ -48,12 +48,6 @@ class ManagerService extends ModelService {
 
   async checkPassword(passwordPlain, passwordEncrypted) {
     return Encryptions.checkPassword(passwordPlain, passwordEncrypted);
-  }
-
-  async signJWT(managerId) {
-    return Encryptions.signJWT({
-      _id: managerId,
-    }, MANAGER_JWT_SECRET);
   }
 }
 
