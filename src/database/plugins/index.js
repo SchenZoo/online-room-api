@@ -4,6 +4,7 @@ const { addRelationFields } = require('./relation.plugin');
 const { addSearchableFields } = require('./searchable.plugin');
 const { addSignedUrlPlugin } = require('./signed_url.plugin');
 const { addSortableFields } = require('./sortable.plugin');
+const { addHookWebhooks } = require('./company_webhook.plugin');
 
 
 module.exports = {
@@ -13,4 +14,5 @@ module.exports = {
   addSearchableFields,
   addSignedUrlPlugin,
   addSortableFields,
+  addHookWebhooks,
 };

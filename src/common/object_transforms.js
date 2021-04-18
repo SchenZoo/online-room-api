@@ -105,6 +105,14 @@ function getObjectPropertyPaths(object, initialPath = '') {
   return Object.entries({ ...object }).reduce((acc, [key, value]) => [...acc, ...getObjectPropertyPaths(value, `${prefix}${key}`)], []);
 }
 
+function sortObjectByKey(object) {
+  if (!object || typeof object !== 'object') { return object; }
+
+  return Object.entries(object)
+    .sort(([key1], [key2]) => (`${key1}`).localeCompare(`${key2}`, 'en'))
+    .reduce((sortedObject, [key, value]) => ({ ...sortedObject, [key]: sortObjectByKey(value) }), {});
+}
+
 module.exports = {
   pick,
   removeProps,
@@ -113,4 +121,5 @@ module.exports = {
   toPlainObject,
   shallowPick,
   getObjectPropertyPaths,
+  sortObjectByKey,
 };

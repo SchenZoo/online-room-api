@@ -1,5 +1,6 @@
 const Hashids = require('hashids/cjs');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
 const hashids = new Hashids(process.env.HASH_ID_SECRET);
@@ -35,6 +36,9 @@ function verifyJWT(token, secret) {
   return jwt.verify(token, secret);
 }
 
+function hmacSha265Hash(secret, data) {
+  return crypto.createHmac('SHA256', secret).update(data).digest('hex');
+}
 
 module.exports = {
   encodeMongoId,
@@ -43,4 +47,5 @@ module.exports = {
   checkPassword,
   signJWT,
   verifyJWT,
+  hmacSha265Hash,
 };

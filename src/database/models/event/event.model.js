@@ -5,7 +5,10 @@ const {
   EVENT_CARDINALITY_TYPE,
 } = require('../../../constants/company/event/types');
 const { EVENT_PARTICIPANT_ROLES } = require('../../../constants/company/event/roles');
-
+const { WEBHOOK_EVENT_TYPES } = require('../../../constants/company/webhook/event_types');
+const {
+  addHookWebhooks,
+} = require('../../plugins');
 
 const { Schema } = mongoose;
 
@@ -87,6 +90,13 @@ const EventSchema = new Schema(
   },
   { timestamps: true }
 );
+
+EventSchema.plugin(addHookWebhooks({
+  create: WEBHOOK_EVENT_TYPES.EVENT_CREATED,
+  update: WEBHOOK_EVENT_TYPES.EVENT_UPDATED,
+  remove: WEBHOOK_EVENT_TYPES.EVENT_DELETED,
+  propertyName: 'event',
+}));
 
 module.exports = {
   EventModel: mongoose.model(MONGO_MODEL_NAMES.Event, EventSchema),

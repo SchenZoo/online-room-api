@@ -1,7 +1,13 @@
 const mongoose = require('mongoose');
 const { MONGO_MODEL_NAMES } = require('../../../constants/mongo/model_names');
 const { USER_PERMISSIONS } = require('../../../constants/company/user/permissions');
-const { addSearchableFields, addRelationFields, addForbiddenFields } = require('../../plugins');
+const { WEBHOOK_EVENT_TYPES } = require('../../../constants/company/webhook/event_types');
+const {
+  addSearchableFields,
+  addRelationFields,
+  addForbiddenFields,
+  addHookWebhooks,
+} = require('../../plugins');
 
 const { Schema } = mongoose;
 
@@ -55,6 +61,12 @@ UserSchema.virtual('company', {
 UserSchema.plugin(addForbiddenFields(['password']));
 UserSchema.plugin(addRelationFields(['company']));
 UserSchema.plugin(addSearchableFields(['username', 'name']));
+UserSchema.plugin(addHookWebhooks({
+  create: WEBHOOK_EVENT_TYPES.USER_CREATED,
+  update: WEBHOOK_EVENT_TYPES.USER_UPDATED,
+  remove: WEBHOOK_EVENT_TYPES.USER_DELETED,
+  propertyName: 'user',
+}));
 
 module.exports = {
   UserModel: mongoose.model(MONGO_MODEL_NAMES.User, UserSchema),

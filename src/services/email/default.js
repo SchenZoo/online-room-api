@@ -24,4 +24,6 @@ class EmailService {
   }
 }
 
-module.exports = new EmailService();
+module.exports = {
+  EmailService: new EmailService(),
+};

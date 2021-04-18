@@ -2,6 +2,8 @@ const express = require('express');
 
 const { EVENT_PARTICIPANT_ROLES } = require('../../constants/company/event/roles');
 
+const { ObjectTransforms } = require('../../common');
+
 const {
   PERMISSIONS,
   asyncMiddleware,
@@ -17,10 +19,25 @@ const { BadBodyError } = require('../../errors/general');
 const router = express.Router();
 
 
+router.post('/participants/:participantId/is-kicked',
+  eventParticipantJwtAuthMiddleware(),
+  hasEventParticipantRoleMiddleware(EVENT_PARTICIPANT_ROLES.ADMIN),
+  asyncMiddleware(kickParticipantHandler));
+
 router.post('/:id/participants',
   hasCompanyAccessMiddleware(),
   hasPermissionMiddleware(PERMISSIONS.UPDATE_EVENT_PARTICIPANTS),
   asyncMiddleware(createParticipantHandler));
+
+
+router.patch('/participants/current',
+  eventParticipantJwtAuthMiddleware(),
+  asyncMiddleware(updateCurrentParticipantHandler));
+
+router.patch('/participants/:participantId',
+  hasCompanyAccessMiddleware(),
+  hasPermissionMiddleware(PERMISSIONS.UPDATE_EVENT_PARTICIPANTS),
+  asyncMiddleware(updateParticipantHandler));
 
 router.delete('/:id/participants/:participantId',
   hasCompanyAccessMiddleware(),
@@ -30,11 +47,6 @@ router.delete('/:id/participants/:participantId',
 router.get('/participants/video-token',
   eventParticipantJwtAuthMiddleware(),
   asyncMiddleware(getParticipantVideoTokenHandler));
-
-router.post('/participants/:participantId/is-kicked',
-  eventParticipantJwtAuthMiddleware(),
-  hasEventParticipantRoleMiddleware(EVENT_PARTICIPANT_ROLES.ADMIN),
-  asyncMiddleware(kickParticipantHandler));
 
 
 async function createParticipantHandler(req, res) {
@@ -83,6 +95,31 @@ async function kickParticipantHandler(req, res) {
 
   return res.json({
     kicked: true,
+  });
+}
+
+async function updateCurrentParticipantHandler(req, res) {
+  const { body, eventPartId, event } = req;
+
+  const participant = await EventService.updateParticipant(event, eventPartId, ObjectTransforms.pick(body, ['name']));
+
+  return res.json({
+    participant,
+  });
+}
+
+async function updateParticipantHandler(req, res) {
+  const { body, companyId, params: { participantId } } = req;
+
+  const event = await EventService.getOne({
+    'participants._id': participantId,
+    companyId,
+  });
+
+  await EventService.updateParticipant(event, participantId, ObjectTransforms.pick(body, ['role', 'name']));
+
+  return res.json({
+    event,
   });
 }
 

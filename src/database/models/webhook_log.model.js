@@ -7,12 +7,19 @@ const WebhookLogSchema = new Schema(
   {
     requestData: {
       type: Schema.Types.Mixed,
+      immutable: true,
     },
     responseData: {
       type: Schema.Types.Mixed,
+      immutable: true,
     },
     responseCode: {
       type: Number,
+      immutable: true,
+    },
+    signature: {
+      type: String,
+      immutable: true,
     },
     webhookId: {
       type: Schema.Types.ObjectId,

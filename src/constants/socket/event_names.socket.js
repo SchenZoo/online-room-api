@@ -3,6 +3,10 @@ const SOCKET_EVENT_NAMES = {
   AUTH_SUCCESS: 'auth:success',
   AUTH_FAIL: 'auth:fail',
   DISCONNECT: 'disconnect',
+  KICKED: 'kicked',
+
+  ONLINE_ACKNOWLEDGE: 'online-acknowledge',
+  ONLINE_ACKNOWLEDGE_SUCCESS: 'online-acknowledge:success',
 
   WEBRTC_SEND_OFFER: 'webrtc-send-offer',
   WEBRTC_RECEIVE_OFFER: 'webrtc-receive-offer',
@@ -11,6 +15,7 @@ const SOCKET_EVENT_NAMES = {
   WEBRTC_SEND_CANDIDATE: 'webrtc-send-candidate',
   WEBRTC_RECEIVE_CANDIDATE: 'webrtc-receive-candidate',
 
+  EVENT_CHANGED: 'event-changed',
   EVENT_MUTE_PARTICIPANT: 'event-mute-participant',
   EVENT_KICK_PARTICIPANT: 'event-kick-participant',
 };

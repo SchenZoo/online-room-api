@@ -114,15 +114,21 @@ class ModelService {
   }
 
   /**
+   *
+   * @param {any} query
+   */
+  async removeMany(query) {
+    return this.Model.deleteMany(query);
+  }
+
+  /**
  *
  * @param {Record<string,string>} queryParams
  * @param {{additionalQuery: any, additionalForbiddenProps: [], findOptions:mongoose.QueryFindBaseOptions}} options
  */
   async getPaginated(queryParams, options = {}) {
     const {
-      additionalQuery = {}, additionalForbiddenProps = [], findOptions = {
-        lean: true,
-      },
+      additionalQuery = {}, additionalForbiddenProps = [], findOptions = {},
     } = options;
 
     const {
@@ -182,12 +188,12 @@ class ModelService {
    *
    * @param {Record<string,string>} queryParams
    * @param {{ query: Record<string,string>, additionalForbiddenProps: [], findOptions: mongoose.QueryFindBaseOptions}} options
+   *
+   * @return {Promise<mongoose.Document>}
    */
   async getOne(query = {}, options = {}) {
     const {
-      query: queryParams = {}, findOptions = {
-        lean: true,
-      }, additionalForbiddenProps = [],
+      query: queryParams = {}, findOptions = {}, additionalForbiddenProps = [],
     } = options;
 
     const {

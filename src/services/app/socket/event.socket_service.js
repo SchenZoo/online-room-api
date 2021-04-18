@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 const { Socket } = require('socket.io');
-const { SocketService } = require('../../socket');
-const { AuthService } = require('../auth.service');
+// eslint-disable-next-line no-unused-vars
+const { SocketService, OnlineUser } = require('../../socket');
 const { EVENT_PARTICIPANT_ROLES } = require('../../../constants/company/event/roles');
 const { EVENT_CARDINALITY_TYPE } = require('../../../constants/company/event/types');
 
@@ -15,7 +15,26 @@ const { EVENT_CARDINALITY_TYPE } = require('../../../constants/company/event/typ
 
 class EventSocketService extends SocketService {
   constructor() {
-    super('/event');
+    super('/event', {
+      tabOvertaking: true,
+    });
+
+    this.initialize({
+      idKey: 'partId',
+      authorize: this._authorizeConnection,
+      joinRooms: this._joinRooms,
+      initHandlers: this._initHandlers,
+    });
+
+    this.initializeOnlineTracking(
+      this._setUserOnline,
+      this._setUserOffline,
+      {
+        maxPingTries: 3,
+        pingInterval: 7000,
+        responseTimeout: 5000,
+      }
+    );
   }
 
   /**
@@ -41,12 +60,33 @@ class EventSocketService extends SocketService {
 
   /**
    *
+   * @param {OnlineUser} user
+   */
+  async _setUserOnline(user) {
+    const { EventService } = require('..');
+
+    await EventService.participantConnected(user.id);
+  }
+
+  /**
+   *
+   * @param {OnlineUser} user
+   */
+  async _setUserOffline(user) {
+    const { EventService } = require('..');
+
+    await EventService.participanDisconnected(user.id);
+  }
+
+  /**
+   *
    * @param {EventServer} socketClient
    */
   _authorizeConnection(socketClient) {
     return new Promise((resolve, reject) => {
       socketClient.on(this.SOCKET_EVENT_NAMES.AUTH, async (token) => {
         try {
+          const { AuthService } = require('..');
           const { _id, eventId, role } = AuthService.verifyEventParticipantJwt(token);
           socketClient.partId = _id;
           socketClient.partRole = role;
@@ -60,6 +100,22 @@ class EventSocketService extends SocketService {
         reject();
       });
     });
+  }
+
+  /**
+   *
+   * @param {EventServer} socketClient
+   */
+  async _onDisconnect(socketClient) {
+    const { EventService } = require('..');
+
+    const { partId, eventId } = socketClient;
+
+    if (partId && eventId) {
+      const event = await EventService.getOne({ _id: eventId });
+
+      await EventService.participanDisconnected(event, partId);
+    }
   }
 
   /**

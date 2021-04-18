@@ -26,6 +26,10 @@ module.exports = () => async (req, res, next) => {
 
     const participant = event.participants.find((part) => part._id);
 
+    if (!participant) {
+      throw new Error();
+    }
+
     req.eventPartJwtToken = token;
     req.eventId = eventId;
     req.event = event;

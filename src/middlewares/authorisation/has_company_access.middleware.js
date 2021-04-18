@@ -11,6 +11,6 @@ module.exports = () => multiOptionMiddleware(
       companyApiKeyAuth(),
     ],
   ],
-  'Not authorized! Cannot load authorisation permissions.',
+  undefined,
   403
 );

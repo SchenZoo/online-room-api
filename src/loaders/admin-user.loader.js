@@ -1,7 +1,7 @@
 const { ManagerService } = require('../services/app');
 
 
-async function createAdminUser() {
+async function load() {
   const admin = await ManagerService.findOne();
   if (!admin) {
     await ManagerService.create({
@@ -13,4 +13,4 @@ async function createAdminUser() {
   }
 }
 
-createAdminUser();
+module.exports = load;
