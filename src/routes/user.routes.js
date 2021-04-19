@@ -87,7 +87,7 @@ async function updateHandler(req, res) {
     throw new BadBodyError('Only main user can change himself.', true);
   }
 
-  const filteredBody = ObjectTransforms.pick(userBody, ['name', 'username', 'password'], true);
+  const filteredBody = ObjectTransforms.pick(userBody, ['name', 'username', 'password', 'externalId'], true);
 
   const updatedUser = await UserService.updateObject(user, filteredBody);
 

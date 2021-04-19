@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const { MONGO_MODEL_NAMES } = require('../../constants/mongo/model_names');
 const { WEBHOOK_EVENT_TYPES } = require('../../constants/company/webhook/event_types');
-const { addSearchableFields, addRelationFields } = require('../plugins');
+const { TRACKING_EVENT_TYPES } = require('../../constants/tracking/tracking_event_types');
+const { addSearchableFields, addRelationFields, addEventTracking } = require('../plugins');
 
 const { Schema } = mongoose;
 
@@ -44,6 +45,9 @@ const WebhookSchema = new Schema(
       immutable: true,
       unique: true,
     },
+    externalId: {
+      type: String,
+    },
     companyId: {
       type: Schema.Types.ObjectId,
       required: true,
@@ -62,7 +66,11 @@ WebhookSchema.virtual('logs', {
 });
 
 WebhookSchema.plugin(addRelationFields(['logs']));
-WebhookSchema.plugin(addSearchableFields(['name', 'requestUrl']));
+WebhookSchema.plugin(addSearchableFields(['name', 'requestUrl', 'externalId']));
+WebhookSchema.plugin(addEventTracking(MONGO_MODEL_NAMES.Webhook, {
+  create: TRACKING_EVENT_TYPES.WEBHOOK_CREATED,
+  remove: TRACKING_EVENT_TYPES.WEBHOOK_DELETED,
+}));
 
 module.exports = {
   WebhookModel: mongoose.model(MONGO_MODEL_NAMES.Webhook, WebhookSchema),

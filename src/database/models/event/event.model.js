@@ -6,8 +6,12 @@ const {
 } = require('../../../constants/company/event/types');
 const { EVENT_PARTICIPANT_ROLES } = require('../../../constants/company/event/roles');
 const { WEBHOOK_EVENT_TYPES } = require('../../../constants/company/webhook/event_types');
+const { TRACKING_EVENT_TYPES } = require('../../../constants/tracking/tracking_event_types');
 const {
   addHookWebhooks,
+  addSearchableFields,
+  addSortableFields,
+  addEventTracking,
 } = require('../../plugins');
 
 const { Schema } = mongoose;
@@ -33,11 +37,13 @@ const EventParticipantSchema = new Schema({
   lastJoinedAt: {
     type: Date,
   },
+  externalId: {
+    type: String,
+  },
   token: {
     type: String,
     required: true,
     immutable: true,
-    unique: true,
   },
 }, { timestamps: true });
 
@@ -82,20 +88,31 @@ const EventSchema = new Schema(
       immutable: true,
       unique: true,
     },
+    externalId: {
+      type: String,
+    },
     companyId: {
       type: mongoose.Types.ObjectId,
       required: true,
       immutable: true,
+      index: 1,
     },
   },
   { timestamps: true }
 );
+
+EventSchema.plugin(addSortableFields(['startsAt', 'endsAt']));
+EventSchema.plugin(addSearchableFields(['name', 'externalId']));
 
 EventSchema.plugin(addHookWebhooks({
   create: WEBHOOK_EVENT_TYPES.EVENT_CREATED,
   update: WEBHOOK_EVENT_TYPES.EVENT_UPDATED,
   remove: WEBHOOK_EVENT_TYPES.EVENT_DELETED,
   propertyName: 'event',
+}));
+EventSchema.plugin(addEventTracking(MONGO_MODEL_NAMES.Event, {
+  create: TRACKING_EVENT_TYPES.EVENT_CREATED,
+  remove: TRACKING_EVENT_TYPES.EVENT_DELETED,
 }));
 
 module.exports = {

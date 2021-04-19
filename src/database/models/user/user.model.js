@@ -2,12 +2,15 @@ const mongoose = require('mongoose');
 const { MONGO_MODEL_NAMES } = require('../../../constants/mongo/model_names');
 const { USER_PERMISSIONS } = require('../../../constants/company/user/permissions');
 const { WEBHOOK_EVENT_TYPES } = require('../../../constants/company/webhook/event_types');
+const { TRACKING_EVENT_TYPES } = require('../../../constants/tracking/tracking_event_types');
 const {
   addSearchableFields,
   addRelationFields,
   addForbiddenFields,
   addHookWebhooks,
+  addEventTracking,
 } = require('../../plugins');
+
 
 const { Schema } = mongoose;
 
@@ -41,6 +44,9 @@ const UserSchema = new mongoose.Schema(
       default: false,
       immutable: true,
     },
+    externalId: {
+      type: String,
+    },
     companyId: {
       type: Schema.Types.ObjectId,
       required: true,
@@ -60,12 +66,17 @@ UserSchema.virtual('company', {
 
 UserSchema.plugin(addForbiddenFields(['password']));
 UserSchema.plugin(addRelationFields(['company']));
-UserSchema.plugin(addSearchableFields(['username', 'name']));
+UserSchema.plugin(addSearchableFields(['username', 'name', 'externalId']));
 UserSchema.plugin(addHookWebhooks({
   create: WEBHOOK_EVENT_TYPES.USER_CREATED,
   update: WEBHOOK_EVENT_TYPES.USER_UPDATED,
   remove: WEBHOOK_EVENT_TYPES.USER_DELETED,
   propertyName: 'user',
+}));
+
+UserSchema.plugin(addEventTracking(MONGO_MODEL_NAMES.User, {
+  create: TRACKING_EVENT_TYPES.USER_CREATED,
+  remove: TRACKING_EVENT_TYPES.USER_DELETED,
 }));
 
 module.exports = {

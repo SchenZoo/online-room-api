@@ -35,10 +35,12 @@ class SocketService {
       console.error('Calling activateOnlineTracking before socket initialized.');
       return;
     }
+
     if (this.onlineTrackingService) {
       console.error('Calling activateOnlineTracking multiple times.');
       return;
     }
+
     this.onlineTrackingService = new OnlineTrackingService(connectUser, disconnectUser, (userId) => {
       this.sendEventInRoom(
         SOCKET_ROOM_NAMES.SOCKET_SERVICE_USER_ROOM(userId),

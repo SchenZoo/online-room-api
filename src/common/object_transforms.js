@@ -93,7 +93,7 @@ function removeUndefinedProps(object) {
 
 function toPlainObject(object) {
   if (object === undefined) { return object; }
-  return JSON.parse(JSON.stringify(object));
+  return JSON.parse(JSON.stringify(object.toObject ? object.toObject() : object));
 }
 
 function getObjectPropertyPaths(object, initialPath = '') {
@@ -106,7 +106,7 @@ function getObjectPropertyPaths(object, initialPath = '') {
 }
 
 function sortObjectByKey(object) {
-  if (!object || typeof object !== 'object') { return object; }
+  if (!object || typeof object !== 'object' || Array.isArray(object)) { return object; }
 
   return Object.entries(object)
     .sort(([key1], [key2]) => (`${key1}`).localeCompare(`${key2}`, 'en'))

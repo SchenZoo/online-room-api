@@ -13,28 +13,35 @@ function addHookWebhooks(webhookTypes = {}) {
     create, update, remove, propertyName = 'data',
   } = webhookTypes;
 
-  const { WebhookService } = require('../../services/app/webhook.service');
 
   return (schema) => {
     if (create || update) {
-      schema.pre('save', async function () {
-        const isCreate = this.modifiedPaths().includes('companyId');
-        if (!isAnyFieldChanged(this.modifiedPaths())) {
+      schema.pre('save', function () {
+        this.isCreate = this.isNew;
+        this.updatedPaths = this.modifiedPaths();
+        this.shouldRunHook = this.isNew || isAnyFieldChanged(this.modifiedPaths());
+      });
+      schema.post('save', async function () {
+        const { WebhookService } = require('../../services/app');
+
+        if (!this.shouldRunHook) {
           return;
         }
-        if (isCreate) {
+        if (this.isCreate) {
           if (create) {
             WebhookService.sendCompanyWebhooks(this.companyId, create, { [propertyName]: this });
           }
         } else if (update) {
-          WebhookService.sendCompanyWebhooks(this.companyId, update, { [propertyName]: this });
+          WebhookService.sendCompanyWebhooks(this.companyId, update, { [propertyName]: this, updatedPaths: this.updatedPaths });
         }
       });
     }
 
     if (remove) {
-      schema.pre('remove', async function () {
-        WebhookService.sendCompanyWebhooks(this.companyId, remove, { [propertyName]: this });
+      schema.post('remove', (doc) => {
+        const { WebhookService } = require('../../services/app');
+
+        WebhookService.sendCompanyWebhooks(doc.companyId, remove, { [propertyName]: doc });
       });
     }
   };

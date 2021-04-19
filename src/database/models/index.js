@@ -6,6 +6,7 @@ const { WebhookModel } = require('./webhook.model');
 const { WebhookLogModel } = require('./webhook_log.model');
 const { EventModel } = require('./event/event.model');
 const { ChatMessageModel } = require('./event/chat_message.model');
+const { TrackingEventModel } = require('./tracking_event.model');
 
 module.exports = {
   MangerModel,
@@ -16,4 +17,5 @@ module.exports = {
   WebhookLogModel,
   EventModel,
   ChatMessageModel,
+  TrackingEventModel,
 };

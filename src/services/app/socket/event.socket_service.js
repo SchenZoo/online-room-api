@@ -75,7 +75,7 @@ class EventSocketService extends SocketService {
   async _setUserOffline(user) {
     const { EventService } = require('..');
 
-    await EventService.participanDisconnected(user.id);
+    await EventService.participanDisconnected(user.id, user.connectedAt, user.disconnectedAt);
   }
 
   /**
@@ -100,22 +100,6 @@ class EventSocketService extends SocketService {
         reject();
       });
     });
-  }
-
-  /**
-   *
-   * @param {EventServer} socketClient
-   */
-  async _onDisconnect(socketClient) {
-    const { EventService } = require('..');
-
-    const { partId, eventId } = socketClient;
-
-    if (partId && eventId) {
-      const event = await EventService.getOne({ _id: eventId });
-
-      await EventService.participanDisconnected(event, partId);
-    }
   }
 
   /**

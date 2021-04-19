@@ -41,6 +41,12 @@ app.use((error, req, res, next) => {
     });
   }
 
+  if (error.name === 'CastError') {
+    return res.status(400).json({
+      message: `Invalid value (${error.value}) sent for ${error.kind} type field.`,
+    });
+  }
+
   if (error.code === 11000) {
     const fieldGroup = error.message.match(/index: (.*)_1 dup key/);
     const field = fieldGroup ? fieldGroup[1] : 'unknown_field';

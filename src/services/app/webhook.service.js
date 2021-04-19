@@ -4,7 +4,6 @@ const query = require('querystring');
 const { ModelService } = require('./model.service');
 const { WebhookModel } = require('../../database/models/webhook.model');
 const { Randoms, Encryptions, ObjectTransforms } = require('../../common');
-const { WebhookLogService } = require('./webhook_log.service');
 
 
 class WebhookService extends ModelService {
@@ -22,6 +21,8 @@ class WebhookService extends ModelService {
   async removeOne(query) {
     const document = await super.removeOne(query);
 
+    const { WebhookLogService } = require('./webhook_log.service');
+
     await WebhookLogService.removeMany({
       webhookId: document._id,
     });
@@ -30,9 +31,13 @@ class WebhookService extends ModelService {
   }
 
   async sendCompanyWebhooks(companyId, eventType, payload) {
+    const { WebhookLogService } = require('./webhook_log.service');
+
     const webhooks = await this.findAll({
       companyId,
       eventTypes: eventType,
+    }, '', {
+      lean: true,
     });
 
     return Promise.all(webhooks.map(async (webhook) => {
@@ -81,7 +86,7 @@ class WebhookService extends ModelService {
       signatureHeaderKey = 'X-Signature',
     } = options;
 
-    const sortedBody = ObjectTransforms.sortObjectByKey(body);
+    const sortedBody = ObjectTransforms.sortObjectByKey(ObjectTransforms.toPlainObject(body));
 
     let signature = '';
 
@@ -109,9 +114,17 @@ class WebhookService extends ModelService {
       responseData = data;
       responseCode = status;
     } catch (err) {
-      const { response } = err;
-      responseData = response.data;
-      responseCode = response.status;
+      if (err.response) {
+        const { response } = err;
+        responseData = response.data;
+        responseCode = response.status;
+      } else {
+        responseData = {
+          type: 'Not response error',
+          message: err.message,
+        };
+        responseCode = 0;
+      }
     }
 
     return {

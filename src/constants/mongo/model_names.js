@@ -3,6 +3,7 @@ const MONGO_MODEL_NAMES = {
   Company: 'Company',
   User: 'User',
   Event: 'Event',
+  TrackingEvent: 'TrackingEvent',
   ChatMessage: 'ChatMessage',
   ApiKey: 'ApiKey',
   Webhook: 'Webhook',

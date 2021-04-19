@@ -116,7 +116,7 @@ async function updateParticipantHandler(req, res) {
     companyId,
   });
 
-  await EventService.updateParticipant(event, participantId, ObjectTransforms.pick(body, ['role', 'name']));
+  await EventService.updateParticipant(event, participantId, ObjectTransforms.pick(body, ['role', 'name', 'externalId']));
 
   return res.json({
     event,

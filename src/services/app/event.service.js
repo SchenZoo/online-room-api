@@ -10,6 +10,7 @@ const { DefaultVideoService } = require('../twilio');
 const { EVENT_CARDINALITY_TYPE } = require('../../constants/company/event/types');
 const { WEBHOOK_EVENT_TYPES } = require('../../constants/company/webhook/event_types');
 const { EventSocketService } = require('./socket/event.socket_service');
+const { TrackingEventService } = require('./tracking_event.service');
 
 
 class EventService extends ModelService {
@@ -104,17 +105,30 @@ class EventService extends ModelService {
       token: Randoms.getRandomString(),
     })));
 
+    event.participants.slice(-partialParticipants.length).forEach((part) => {
+      TrackingEventService.trackParticipantCreated(event, part._id);
+    });
+
     return this.saveEventChanges(event);
   }
 
   async removeParticipant(event, participantId) {
+    const prevLength = event.participants.length;
     event.participants = event.participants.filter((part) => `${part._id}` !== `${participantId}`);
+
+    if (prevLength !== event.participants.length) {
+      TrackingEventService.trackParticipantDeleted(event, participantId);
+    }
 
     return this.saveEventChanges(event);
   }
 
   async kickParticipant(event, participantId) {
     const participant = this.getParticipant(event, participantId);
+
+    if (!participant.isKicked) {
+      TrackingEventService.trackParticipantKicked(event, participantId);
+    }
 
     participant.isKicked = true;
 
@@ -144,13 +158,15 @@ class EventService extends ModelService {
 
     const participant = this.getParticipant(event, participantId);
 
+    TrackingEventService.trackParticipantJoined(event, participantId, participant.lastJoinedAt);
+
     participant.hasJoined = true;
     participant.lastJoinedAt = new Date();
 
     return this.saveEventChanges(event);
   }
 
-  async participanDisconnected(participantId) {
+  async participanDisconnected(participantId, connectedAt, disconnectedAt) {
     const event = await this.getOne({
       'participants._id': participantId,
     });
@@ -159,6 +175,12 @@ class EventService extends ModelService {
 
     participant.hasJoined = false;
 
+    TrackingEventService.trackParticipantLeft(event, participantId, connectedAt, disconnectedAt);
+
+    return this.saveEventChanges(event);
+  }
+
+  async trackParticipantOnlineTime(event) {
     return this.saveEventChanges(event);
   }
 

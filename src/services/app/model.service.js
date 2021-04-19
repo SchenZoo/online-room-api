@@ -106,11 +106,11 @@ class ModelService {
    * @param {any} query
    */
   async removeOne(query) {
-    const document = await this.Model.findOneAndRemove(query);
+    const document = await this.Model.findOne(query);
     if (!document) {
       throw new NotFoundError(`${this.Model.modelName} not found!`, true);
     }
-    return document;
+    return document.remove();
   }
 
   /**

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { MONGO_MODEL_NAMES } = require('../../../constants/mongo/model_names');
+const { addSearchableFields, addSortableFields } = require('../../plugins');
 
 const { Schema } = mongoose;
 
@@ -11,13 +12,13 @@ const ChatMessageSchema = new Schema({
   messageRef: {
     type: String,
   },
-  senderId: {
-    type: Schema.Types.ObjectId,
+  senderName: {
+    type: String,
     required: true,
     immutable: true,
   },
-  senderName: {
-    type: String,
+  senderId: {
+    type: Schema.Types.ObjectId,
     required: true,
     immutable: true,
   },
@@ -35,9 +36,10 @@ const ChatMessageSchema = new Schema({
   },
 }, { timestamps: true });
 
-const ChatMessageModel = mongoose.model(MONGO_MODEL_NAMES.ChatMessage, ChatMessageSchema);
+ChatMessageSchema.plugin(addSortableFields(['createdAt']));
+ChatMessageSchema.plugin(addSearchableFields(['text']));
 
 module.exports = {
-  ChatMessageModel,
+  ChatMessageModel: mongoose.model(MONGO_MODEL_NAMES.ChatMessage, ChatMessageSchema),
   ChatMessageSchema,
 };

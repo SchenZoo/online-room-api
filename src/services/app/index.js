@@ -6,7 +6,8 @@ const { EventService } = require('./event.service');
 const { ApiKeyService } = require('./api_key.service');
 const { WebhookService } = require('./webhook.service');
 const { WebhookLogService } = require('./webhook_log.service');
-
+const { TrackingEventService } = require('./tracking_event.service');
+const { EventChatService } = require('./event_chat.service');
 
 const { EventSocketService } = require('./socket/event.socket_service');
 
@@ -20,4 +21,6 @@ module.exports = {
   WebhookService,
   WebhookLogService,
   EventSocketService,
+  TrackingEventService,
+  EventChatService,
 };

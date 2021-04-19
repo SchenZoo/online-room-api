@@ -33,6 +33,7 @@ module.exports = () => async (req, res, next) => {
     req.eventPartJwtToken = token;
     req.eventId = eventId;
     req.event = event;
+    req.companyId = `${event.companyId}`;
     req.eventPartId = _id;
     req.eventPartRole = role;
     req.eventParticipant = participant;
