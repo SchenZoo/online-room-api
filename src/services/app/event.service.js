@@ -116,6 +116,8 @@ class EventService extends ModelService {
     const prevLength = event.participants.length;
     event.participants = event.participants.filter((part) => `${part._id}` !== `${participantId}`);
 
+    EventSocketService.sendEventToParticipant(event._id, participantId, EventSocketService.SOCKET_EVENT_NAMES.EVENT_KICK_PARTICIPANT);
+
     if (prevLength !== event.participants.length) {
       TrackingEventService.trackParticipantDeleted(event, participantId);
     }

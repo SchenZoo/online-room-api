@@ -42,6 +42,18 @@ class TrackingEventService extends ModelService {
     );
   }
 
+  async trackReviewCreated(companyId, eventId, participantId, rate) {
+    return this.trackParticipantEvents(
+      TRACKING_EVENT_TYPES.EVENT_REVIEW_CREATED,
+      companyId,
+      eventId,
+      participantId,
+      {
+        rate,
+      }
+    );
+  }
+
   async trackParticipantCreated(event, participantId) {
     return this.trackParticipantEvents(
       TRACKING_EVENT_TYPES.EVENT_PARTICIPANT_CREATED,

@@ -35,15 +35,6 @@ class UserService extends ModelService {
   }
 
   async create(partialDocument) {
-    const existingUser = await this.findOne({
-      companyId: partialDocument.companyId,
-      username: partialDocument.username,
-    });
-
-    if (existingUser) {
-      throw new ConflictError('User with this username already exists', true);
-    }
-
     partialDocument.isMain = false;
 
     const document = await super.create(partialDocument);

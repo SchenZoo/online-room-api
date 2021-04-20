@@ -4,9 +4,10 @@ const { addSearchableFields, addSortableFields } = require('../../plugins');
 
 const { Schema } = mongoose;
 
-const ChatMessageSchema = new Schema({
+const EventChatMessageSchema = new Schema({
   text: {
     type: String,
+    minlength: 1,
     required: true,
   },
   messageRef: {
@@ -15,7 +16,7 @@ const ChatMessageSchema = new Schema({
   senderName: {
     type: String,
     required: true,
-    immutable: true,
+    default: 'Event participant',
   },
   senderId: {
     type: Schema.Types.ObjectId,
@@ -36,10 +37,10 @@ const ChatMessageSchema = new Schema({
   },
 }, { timestamps: true });
 
-ChatMessageSchema.plugin(addSortableFields(['createdAt']));
-ChatMessageSchema.plugin(addSearchableFields(['text']));
+EventChatMessageSchema.plugin(addSortableFields(['createdAt']));
+EventChatMessageSchema.plugin(addSearchableFields(['text']));
 
 module.exports = {
-  ChatMessageModel: mongoose.model(MONGO_MODEL_NAMES.ChatMessage, ChatMessageSchema),
-  ChatMessageSchema,
+  EventChatMessageModel: mongoose.model(MONGO_MODEL_NAMES.EventChatMessage, EventChatMessageSchema),
+  EventChatMessageSchema,
 };

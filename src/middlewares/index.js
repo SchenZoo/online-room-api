@@ -13,6 +13,7 @@ module.exports = {
   hasCompanyAccessMiddleware: require('./authorisation/has_company_access.middleware'),
   hasPermissionMiddleware: require('./authorisation/has_permission.middleware'),
   hasEventParticipantRoleMiddleware: require('./authorisation/has_event_participant_role.middleware'),
+  companyHasModelAccessMiddleware: require('./authorisation/company_has_model_access.middleware'),
   ...require('./multer'),
   PERMISSIONS,
 };

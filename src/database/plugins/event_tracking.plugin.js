@@ -6,11 +6,15 @@
     create?:string,
     update?:string,
     remove?:string,
+    getTrackingData: (doc)=>any
 }} eventTypes
  */
 function addEventTracking(modelName, eventTypes = {}) {
   const {
-    create, update, remove,
+    create,
+    update,
+    remove,
+    getTrackingData = () => {},
   } = eventTypes;
 
 
@@ -23,15 +27,18 @@ function addEventTracking(modelName, eventTypes = {}) {
       });
       schema.post('save', async function () {
         const { TrackingEventService } = require('../../services/app');
+
+        const data = getTrackingData(this);
+
         if (!this.shouldTrackEvent) {
           return;
         }
         if (this.isCreate) {
           if (create) {
-            TrackingEventService.trackDefaultEvent(create, this._id, modelName, this.companyId);
+            TrackingEventService.trackDefaultEvent(create, this._id, modelName, this.companyId, data);
           }
         } else if (update) {
-          TrackingEventService.trackDefaultEvent(create, this._id, modelName, this.companyId);
+          TrackingEventService.trackDefaultEvent(create, this._id, modelName, this.companyId, data);
         }
       });
     }
@@ -39,7 +46,10 @@ function addEventTracking(modelName, eventTypes = {}) {
     if (remove) {
       schema.post('remove', (doc) => {
         const { TrackingEventService } = require('../../services/app');
-        TrackingEventService.trackDefaultEvent(remove, doc._id, modelName, doc.companyId);
+
+        const data = getTrackingData(doc);
+
+        TrackingEventService.trackDefaultEvent(remove, doc._id, modelName, doc.companyId, data);
       });
     }
   };
