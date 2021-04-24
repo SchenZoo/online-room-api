@@ -48,6 +48,11 @@ const WebhookSchema = new Schema(
     externalId: {
       type: String,
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+      index: 1,
+    },
     companyId: {
       type: Schema.Types.ObjectId,
       required: true,

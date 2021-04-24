@@ -18,7 +18,7 @@ module.exports = () => async (req, res, next) => {
     } catch (e) {
       return next(new AuthenticateError('Invalid Authorization header format. Format is "{AUTHORIZATION_TYPE} {TOKEN}". For event participant jwt type use PBearer type', false));
     }
-    const { _id, eventId, role } = AuthService.verifyEventParticipantJwt(token);
+    const { _id, eventId } = AuthService.verifyEventParticipantJwt(token);
 
     const event = await EventService.getOne({ _id: eventId, 'participants._id': _id }, {
       findOptions: { projection: '-participants.token' },
@@ -35,7 +35,7 @@ module.exports = () => async (req, res, next) => {
     req.event = event;
     req.companyId = `${event.companyId}`;
     req.eventPartId = _id;
-    req.eventPartRole = role;
+    req.eventPartRole = participant.role;
     req.eventParticipant = participant;
 
     return next();

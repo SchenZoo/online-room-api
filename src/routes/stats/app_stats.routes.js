@@ -17,25 +17,25 @@ const { EventModel } = require('../../database/models');
 
 const router = express.Router();
 
-router.get('/general', managerJwtAuthMiddleware(), asyncMiddleware(getGeneralStatsHandler));
+router.get('/global', managerJwtAuthMiddleware(), asyncMiddleware(getGeneralStatsHandler));
 
 router.get('/company',
   hasCompanyAccessMiddleware(),
-  hasPermissionMiddleware(PERMISSIONS.READ_EVENT_STATISTICS),
+  hasPermissionMiddleware(PERMISSIONS.READ_COMPANY_STATISTICS),
   asyncMiddleware(getCompanyStatsHandler));
 
 router.get('/events/:eventId',
   hasCompanyAccessMiddleware(),
-  hasPermissionMiddleware(PERMISSIONS.READ_EVENT_STATISTICS),
+  hasPermissionMiddleware(PERMISSIONS.READ_COMPANY_STATISTICS),
   companyHasModelAccessMiddleware(EventModel, 'params.eventId', 'event'),
   asyncMiddleware(getEventStatsHandler));
 
 async function getGeneralStatsHandler(req, res) {
   return res.json(await TrackingEventStatsService.getStats({
     general: TrackingEventStatsService.generalStatsAgg(),
-    event: TrackingEventStatsService.eventStatsAgg(),
-    callDuration: TrackingEventStatsService.callDurationAgg(),
+    call: TrackingEventStatsService.callAgg(),
     participant: TrackingEventStatsService.eventParticipantAgg(),
+    review: TrackingEventStatsService.reviewsAgg(),
   }));
 }
 
@@ -46,9 +46,10 @@ async function getCompanyStatsHandler(req, res) {
 
   return res.json(await TrackingEventStatsService.getStats({
     general: TrackingEventStatsService.generalStatsAgg(query),
-    event: TrackingEventStatsService.eventStatsAgg(query),
-    callDuration: TrackingEventStatsService.callDurationAgg(query),
+    call: TrackingEventStatsService.callAgg(query),
     participant: TrackingEventStatsService.eventParticipantAgg(query),
+    review: TrackingEventStatsService.reviewsAgg(query),
+    durByType: TrackingEventStatsService.callPerTypeAgg(query),
   }));
 }
 
@@ -58,9 +59,10 @@ async function getEventStatsHandler(req, res) {
   const query = { resourceId: mongoose.Types.ObjectId(event._id) };
 
   return res.json(await TrackingEventStatsService.getStats({
-    event: TrackingEventStatsService.eventStatsAgg(query),
-    callDuration: TrackingEventStatsService.callDurationAgg(query),
+    general: TrackingEventStatsService.eventStatsAgg(query),
+    call: TrackingEventStatsService.callAgg(query),
     participant: TrackingEventStatsService.eventParticipantAgg(query),
+    review: TrackingEventStatsService.reviewsAgg(query),
   }));
 }
 

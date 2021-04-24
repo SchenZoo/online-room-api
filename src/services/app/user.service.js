@@ -18,6 +18,8 @@ class UserService extends ModelService {
   async preSaveDocTransform(partialDocument) {
     if (partialDocument.password) {
       partialDocument.password = await this.hashPassword(partialDocument.password);
+    } else {
+      delete partialDocument.password;
     }
     return partialDocument;
   }

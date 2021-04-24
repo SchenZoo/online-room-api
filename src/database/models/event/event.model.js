@@ -51,6 +51,7 @@ const EventSchema = new Schema(
   {
     name: {
       type: String,
+      default: 'Event',
     },
     startsAt: {
       type: Date,

@@ -4,6 +4,7 @@ const query = require('querystring');
 const { ModelService } = require('./model.service');
 const { WebhookModel } = require('../../database/models/webhook.model');
 const { Randoms, Encryptions, ObjectTransforms } = require('../../common');
+const { TrackingEventService } = require('./tracking_event.service');
 
 
 class WebhookService extends ModelService {
@@ -36,6 +37,7 @@ class WebhookService extends ModelService {
     const webhooks = await this.findAll({
       companyId,
       eventTypes: eventType,
+      isActive: true,
     }, '', {
       lean: true,
     });
@@ -46,6 +48,8 @@ class WebhookService extends ModelService {
         responseCode,
         responseData,
         signature,
+        requestHeaders,
+        responseHeaders,
       } = await this.sendWebhook(webhook.requestUrl, {
         eventType,
         webhookId: webhook._id,
@@ -56,6 +60,9 @@ class WebhookService extends ModelService {
         signatureSecret: webhook.secret,
       });
 
+      TrackingEventService.trackWebhookSent(webhook, responseCode);
+
+
       return WebhookLogService.create({
         requestData: body,
         responseData,
@@ -63,6 +70,9 @@ class WebhookService extends ModelService {
         signature,
         webhookId: webhook._id,
         companyId,
+        eventType,
+        requestHeaders,
+        responseHeaders,
       });
     }));
   }
@@ -97,6 +107,7 @@ class WebhookService extends ModelService {
 
     let responseData;
     let responseCode;
+    let responseHeaders;
     try {
       let response;
       switch (requestMethod) {
@@ -110,17 +121,18 @@ class WebhookService extends ModelService {
           response = await axios.post(requestUrl, sortedBody, { headers });
           break;
       }
-      const { data, status } = response;
-      responseData = data;
-      responseCode = status;
+      responseHeaders = response.headers;
+      responseData = response.data;
+      responseCode = response.status;
     } catch (err) {
       if (err.response) {
         const { response } = err;
         responseData = response.data;
         responseCode = response.status;
+        responseHeaders = response.headers;
       } else {
         responseData = {
-          type: 'Not response error',
+          type: 'Local application error',
           message: err.message,
         };
         responseCode = 0;
@@ -132,6 +144,8 @@ class WebhookService extends ModelService {
       signature,
       responseData,
       responseCode,
+      requestHeaders: headers,
+      responseHeaders,
     };
   }
 }

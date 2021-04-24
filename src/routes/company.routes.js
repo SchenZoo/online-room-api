@@ -4,8 +4,9 @@ const {
   PERMISSIONS,
   asyncMiddleware,
   hasCompanyAccessMiddleware,
-  hasPermissionMiddleware,
   managerJwtAuthMiddleware,
+  hasPermissionMiddleware,
+  fileUploadMiddleware,
 } = require('../middlewares');
 const { CompanyService } = require('../services/app');
 
@@ -13,15 +14,25 @@ const { CompanyService } = require('../services/app');
 const router = express.Router();
 
 router.post('/', asyncMiddleware(createHandler));
+
 router.get('/current',
   hasCompanyAccessMiddleware(),
-  hasPermissionMiddleware(PERMISSIONS.READ_COMPANY),
   asyncMiddleware(getCurrentHandler));
+
+router.patch('/current',
+  hasCompanyAccessMiddleware(),
+  hasPermissionMiddleware(PERMISSIONS.UPDATE_COMPANY),
+  fileUploadMiddleware({
+    fileProp: 'logoKey',
+    mimeValidator: /^image/i,
+    saveInProp: 'body.logoKey',
+  }),
+  asyncMiddleware(updateCurrentHandler));
+
 router.get('/', managerJwtAuthMiddleware(), asyncMiddleware(getHandler));
 
-
 async function createHandler(req, res) {
-  const { companyData, userData } = req.body;
+  const { body: { companyData, userData } } = req;
 
   const { company, user, token } = await CompanyService.create(companyData, userData);
 
@@ -43,7 +54,20 @@ async function getCurrentHandler(req, res) {
 }
 
 async function getHandler(req, res) {
-  return res.json(await CompanyService.getPaginated(req.query));
+  const { query } = req;
+
+  return res.json(await CompanyService.getPaginated(query));
 }
+
+async function updateCurrentHandler(req, res) {
+  const { companyId, body } = req;
+
+  const company = await CompanyService.updateOne({ _id: companyId }, body);
+
+  return res.json({
+    company,
+  });
+}
+
 
 module.exports = router;

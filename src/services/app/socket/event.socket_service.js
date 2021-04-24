@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 const { Socket } = require('socket.io');
+const { AuthorizeError } = require('../../../errors/general');
 // eslint-disable-next-line no-unused-vars
 const { SocketService, OnlineUser } = require('../../socket');
 const { EVENT_PARTICIPANT_ROLES } = require('../../../constants/company/event/roles');
@@ -83,23 +84,20 @@ class EventSocketService extends SocketService {
    * @param {EventServer} socketClient
    */
   _authorizeConnection(socketClient) {
-    return new Promise((resolve, reject) => {
-      socketClient.on(this.SOCKET_EVENT_NAMES.AUTH, async (token) => {
-        try {
-          const { AuthService } = require('..');
-          const { _id, eventId, role } = AuthService.verifyEventParticipantJwt(token);
-          socketClient.partId = _id;
-          socketClient.partRole = role;
-          socketClient.eventId = eventId;
+    const { query: { token } = {} } = socketClient.handshake;
+    try {
+      const { AuthService } = require('..');
+      const { _id, eventId, role } = AuthService.verifyEventParticipantJwt(token);
+      socketClient.partId = _id;
+      socketClient.partRole = role;
+      socketClient.eventId = eventId;
 
-          socketClient.emit(this.SOCKET_EVENT_NAMES.AUTH_SUCCESS);
-          resolve();
-        } catch (error) {
-          socketClient.emit(this.SOCKET_EVENT_NAMES.AUTH_FAIL, { message: error.message });
-        }
-        reject();
-      });
-    });
+      socketClient.emit(this.SOCKET_EVENT_NAMES.AUTH_SUCCESS);
+      return true;
+    } catch (error) {
+      socketClient.emit(this.SOCKET_EVENT_NAMES.AUTH_FAIL, { message: error.message });
+    }
+    throw new AuthorizeError(`Not authorized socket access, token=${token}`);
   }
 
   /**

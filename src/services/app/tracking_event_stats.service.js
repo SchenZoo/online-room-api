@@ -65,7 +65,7 @@ class TrackingEventStatsService extends ModelService {
     ];
   }
 
-  callDurationAgg(query = {}) {
+  callAgg(query = {}) {
     return [
       {
         $match: {
@@ -86,7 +86,8 @@ class TrackingEventStatsService extends ModelService {
           _id: null,
           totalDuration: { $sum: '$totalDuration' },
           avgEventTotalDuration: { $avg: '$totalDuration' },
-          count: { $sum: '$count' },
+          activeSessions: { $sum: '$count' },
+          activeEvents: { $sum: 1 },
         },
       },
       {
@@ -94,8 +95,48 @@ class TrackingEventStatsService extends ModelService {
           _id: 0,
           totalDuration: 1,
           avgEventTotalDuration: 1,
-          avgSessionDuration: { $divide: ['$totalDuration', '$count'] },
-          sessionsCount: '$count',
+          avgSessionDuration: { $divide: ['$totalDuration', '$activeSessions'] },
+          activeSessions: '$activeSessions',
+          activeEvents: '$activeEvents',
+        },
+      },
+    ];
+  }
+
+  callPerTypeAgg(query = {}) {
+    return [
+      {
+        $match: {
+          type: TRACKING_EVENT_TYPES.EVENT_PARTICIPANT_LEFT,
+          'data.type': { $exists: true },
+        },
+      },
+      { $match: query },
+      {
+        $group: {
+          _id: '$resourceId',
+          totalDuration: { $sum: '$data.duration' },
+          avgEventDuration: { $avg: '$data.duration' },
+          count: { $sum: 1 },
+          type: { $first: '$data.type' },
+        },
+      },
+      {
+        $group: {
+          _id: '$type',
+          totalDuration: { $sum: '$totalDuration' },
+          avgEventTotalDuration: { $avg: '$totalDuration' },
+          activeSessions: { $sum: '$count' },
+          activeEvents: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          totalDuration: 1,
+          avgEventTotalDuration: 1,
+          avgSessionDuration: { $divide: ['$totalDuration', '$activeSessions'] },
+          activeSessions: '$activeSessions',
+          activeEvents: '$activeEvents',
         },
       },
     ];
@@ -122,12 +163,51 @@ class TrackingEventStatsService extends ModelService {
           _id: null,
           sessionsPerEvent: { $avg: '$count' },
           avgParticipantDuration: { $avg: '$duration' },
-          participantsCount: { $sum: 1 },
+          activeParticipants: { $sum: 1 },
         },
       },
       {
         $project: {
           _id: 0,
+        },
+      },
+    ];
+  }
+
+  reviewsAgg(query = {}) {
+    return [
+      {
+        $match: {
+          type: TRACKING_EVENT_TYPES.EVENT_REVIEW_CREATED,
+          'data.rate': { $exists: true },
+        },
+      },
+      { $match: query },
+      {
+        $group: {
+          _id: '$resourceId',
+          avgRatingPerEvent: { $avg: '$data.rate' },
+          totalRatingPerEvent: { $sum: '$data.rate' },
+          totalReviewsPerEvent: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          avgRatingPerEvent: { $avg: '$avgRatingPerEvent' },
+          totalRating: { $sum: '$totalRatingPerEvent' },
+          totalRatedEvents: { $sum: 1 },
+          totalReviews: { $sum: '$totalReviewsPerEvent' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalRating: '$totalRating',
+          totalRatedEvents: '$totalRatedEvents',
+          totalReviews: '$totalReviews',
+          avgRatingPerEvent: '$avgRatingPerEvent',
+          avgRating: { $divide: ['$totalRating', '$totalReviews'] },
         },
       },
     ];

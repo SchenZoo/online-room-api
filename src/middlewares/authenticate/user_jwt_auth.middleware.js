@@ -22,6 +22,10 @@ module.exports = () => async (req, res, next) => {
 
     const user = await UserService.getOne({ _id });
 
+    if (user.permissions.length !== permissions.length || !permissions.every((perm) => user.permissions.includes(perm))) {
+      return next(new AuthenticateError('Permissions changed!', true, 1010));
+    }
+
     req.userJwtToken = token;
     req.user = user;
     req.permissions = permissions;

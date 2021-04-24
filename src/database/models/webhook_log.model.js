@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { MONGO_MODEL_NAMES } = require('../../constants/mongo/model_names');
+const { WEBHOOK_EVENT_TYPES } = require('../../constants/company/webhook/event_types');
 
 const { Schema } = mongoose;
 
@@ -9,7 +10,7 @@ const WebhookLogSchema = new Schema(
       type: Schema.Types.Mixed,
       immutable: true,
     },
-    responseData: {
+    requestHeaders: {
       type: Schema.Types.Mixed,
       immutable: true,
     },
@@ -17,9 +18,22 @@ const WebhookLogSchema = new Schema(
       type: Number,
       immutable: true,
     },
+    responseData: {
+      type: Schema.Types.Mixed,
+      immutable: true,
+    },
+    responseHeaders: {
+      type: Schema.Types.Mixed,
+      immutable: true,
+    },
     signature: {
       type: String,
       immutable: true,
+    },
+    eventType: {
+      type: String,
+      enum: Object.values(WEBHOOK_EVENT_TYPES),
+      required: true,
     },
     webhookId: {
       type: Schema.Types.ObjectId,

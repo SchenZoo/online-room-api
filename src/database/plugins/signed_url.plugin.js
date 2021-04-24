@@ -4,22 +4,22 @@ const { DefaultS3Service, FileStorageService } = require('../../services/file_st
 /**
  * Expands schema with urlPath field.
  * @param {string} keyPath
+ * @param {string} virtualPath
  * @param {{
- *  urlPath: string;
  *  fallbackUrl: (Document)=>String | String;
  *  expiry: number;
  *  storageService:FileStorageService
  * }} options Options object
  */
-function addSignedUrlPlugin(keyPath, options) {
+function addSignedUrlPlugin(keyPath, virtualPath, options = {}) {
   const {
-    urlPath,
     expiry = 3600 * 24,
     fallbackUrl = null,
     storageService = DefaultS3Service,
   } = options;
+
   return (schema) => schema
-    .virtual(urlPath)
+    .virtual(virtualPath)
     .get(function () {
       if (!this[keyPath]) {
         if (typeof fallbackUrl === 'function') {

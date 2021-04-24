@@ -17,6 +17,7 @@ const { ObjectTransforms } = require('../common');
 const router = express.Router();
 
 router.get('/current', userJwtAuthMiddleware(), asyncMiddleware(getCurrentUserHandler));
+router.patch('/current', userJwtAuthMiddleware(), asyncMiddleware(updateCurrentUserHandler));
 
 router.use(hasCompanyAccessMiddleware());
 
@@ -51,6 +52,9 @@ async function getHandler(req, res) {
 
 async function getCurrentUserHandler(req, res) {
   const { user } = req;
+
+  await user.populate('company').execPopulate();
+
   return res.json({
     user,
   });
@@ -117,6 +121,18 @@ async function updatePermissionsHandler(req, res) {
   const updatedUser = await UserService.updateObject(user, {
     permissions,
   });
+
+  return res.json({
+    user: updatedUser,
+  });
+}
+
+async function updateCurrentUserHandler(req, res) {
+  const { user, body } = req;
+
+  const filteredBody = ObjectTransforms.pick(body, ['name', 'username', 'password'], true);
+
+  const updatedUser = await UserService.updateObject(user, filteredBody);
 
   return res.json({
     user: updatedUser,

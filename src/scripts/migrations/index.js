@@ -1,5 +1,6 @@
 /* eslint-disable import/no-dynamic-require */
 const cliSelect = require('cli-select');
+const load = require('../../loaders');
 const { getAllDirFiles, initializeDatabase } = require('../script_utils');
 
 async function offerAndRunMigration() {
@@ -12,6 +13,7 @@ async function offerAndRunMigration() {
     console.log(`You have selected: ${selectedFile}`);
     initializeDatabase();
     const migration = require(`./${selectedFile}`);
+    await load();
     await migration.execute();
     console.log('Finished executing migration successfully');
   } catch (err) {

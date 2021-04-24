@@ -38,7 +38,7 @@ async function getHandler(req, res) {
     additionalQuery: {
       companyId,
     },
-    additionalForbiddenProps: ['participants', 'name'],
+    additionalForbiddenProps: ['participants'],
   }));
 }
 

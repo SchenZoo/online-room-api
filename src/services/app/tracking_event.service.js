@@ -111,6 +111,19 @@ class TrackingEventService extends ModelService {
       participantId,
       {
         duration,
+        type: event.cardinalityType,
+      }
+    );
+  }
+
+  async trackWebhookSent(webhook, statusCode) {
+    return this.trackDefaultEvent(
+      TRACKING_EVENT_TYPES.WEBHOOK_SENT,
+      webhook._id,
+      MONGO_MODEL_NAMES.Webhook,
+      webhook.companyId,
+      {
+        statusCode,
       }
     );
   }

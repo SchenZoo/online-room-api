@@ -8,7 +8,6 @@ const { Schema } = mongoose;
 const EventReviewSchema = new Schema({
   text: {
     type: String,
-    required: true,
   },
   rate: {
     type: Number,

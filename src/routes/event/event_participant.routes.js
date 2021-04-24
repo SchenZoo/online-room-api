@@ -39,7 +39,7 @@ router.patch('/participants/:participantId',
   hasPermissionMiddleware(PERMISSIONS.UPDATE_EVENT_PARTICIPANTS),
   asyncMiddleware(updateParticipantHandler));
 
-router.delete('/:id/participants/:participantId',
+router.delete('/participants/:participantId',
   hasCompanyAccessMiddleware(),
   hasPermissionMiddleware(PERMISSIONS.UPDATE_EVENT_PARTICIPANTS),
   asyncMiddleware(deleteParticipantHandler));
@@ -62,10 +62,10 @@ async function createParticipantHandler(req, res) {
 }
 
 async function deleteParticipantHandler(req, res) {
-  const { params: { id, participantId }, companyId } = req;
+  const { params: { participantId }, companyId } = req;
 
   const event = await EventService.getOne({
-    _id: id,
+    'participants._id': participantId,
     companyId,
   });
 
