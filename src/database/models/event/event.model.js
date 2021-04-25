@@ -102,7 +102,7 @@ const EventSchema = new Schema(
   { timestamps: true }
 );
 
-EventSchema.plugin(addSortableFields(['startsAt', 'endsAt']));
+EventSchema.plugin(addSortableFields(['startsAt', 'endsAt', 'createdAt', 'updatedAt', 'externalId']));
 EventSchema.plugin(addSearchableFields(['name', 'externalId']));
 
 EventSchema.plugin(addHookWebhooks({

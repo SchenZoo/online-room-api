@@ -24,15 +24,18 @@ router.post('/participants/:participantId/is-kicked',
   hasEventParticipantRoleMiddleware(EVENT_PARTICIPANT_ROLES.ADMIN),
   asyncMiddleware(kickParticipantHandler));
 
+router.patch('/participants/current',
+  eventParticipantJwtAuthMiddleware(),
+  asyncMiddleware(updateCurrentParticipantHandler));
+
+router.get('/participants/video-token',
+  eventParticipantJwtAuthMiddleware(),
+  asyncMiddleware(getParticipantVideoTokenHandler));
+
 router.post('/:id/participants',
   hasCompanyAccessMiddleware(),
   hasPermissionMiddleware(PERMISSIONS.UPDATE_EVENT_PARTICIPANTS),
   asyncMiddleware(createParticipantHandler));
-
-
-router.patch('/participants/current',
-  eventParticipantJwtAuthMiddleware(),
-  asyncMiddleware(updateCurrentParticipantHandler));
 
 router.patch('/participants/:participantId',
   hasCompanyAccessMiddleware(),
@@ -43,10 +46,6 @@ router.delete('/participants/:participantId',
   hasCompanyAccessMiddleware(),
   hasPermissionMiddleware(PERMISSIONS.UPDATE_EVENT_PARTICIPANTS),
   asyncMiddleware(deleteParticipantHandler));
-
-router.get('/participants/video-token',
-  eventParticipantJwtAuthMiddleware(),
-  asyncMiddleware(getParticipantVideoTokenHandler));
 
 
 async function createParticipantHandler(req, res) {

@@ -132,6 +132,8 @@ class TrackingEventStatsService extends ModelService {
       },
       {
         $project: {
+          _id: 0,
+          type: '$_id',
           totalDuration: 1,
           avgEventTotalDuration: 1,
           avgSessionDuration: { $divide: ['$totalDuration', '$activeSessions'] },

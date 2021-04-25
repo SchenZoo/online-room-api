@@ -2,7 +2,13 @@ const mongoose = require('mongoose');
 const { MONGO_MODEL_NAMES } = require('../../constants/mongo/model_names');
 const { WEBHOOK_EVENT_TYPES } = require('../../constants/company/webhook/event_types');
 const { TRACKING_EVENT_TYPES } = require('../../constants/tracking/tracking_event_types');
-const { addSearchableFields, addRelationFields, addEventTracking } = require('../plugins');
+const {
+  addSearchableFields,
+  addSortableFields,
+  addRelationFields,
+  addEventTracking,
+  addHookWebhooks,
+} = require('../plugins');
 
 const { Schema } = mongoose;
 
@@ -72,9 +78,16 @@ WebhookSchema.virtual('logs', {
 
 WebhookSchema.plugin(addRelationFields(['logs']));
 WebhookSchema.plugin(addSearchableFields(['name', 'requestUrl', 'externalId']));
+WebhookSchema.plugin(addSortableFields(['createdAt', 'updatedAt', 'externalId']));
 WebhookSchema.plugin(addEventTracking(MONGO_MODEL_NAMES.Webhook, {
   create: TRACKING_EVENT_TYPES.WEBHOOK_CREATED,
   remove: TRACKING_EVENT_TYPES.WEBHOOK_DELETED,
+}));
+WebhookSchema.plugin(addHookWebhooks({
+  create: WEBHOOK_EVENT_TYPES.WEBHOOK_CREATED,
+  update: WEBHOOK_EVENT_TYPES.WEBHOOK_UPDATED,
+  remove: WEBHOOK_EVENT_TYPES.WEBHOOK_DELETED,
+  propertyName: 'webhook',
 }));
 
 module.exports = {

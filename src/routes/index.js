@@ -1,7 +1,7 @@
 const express = require('express');
 
 const authRoutes = require('./auth.routes');
-const companyRoutes = require('./company.routes');
+const companyRoutes = require('./company/index');
 const userRoutes = require('./user.routes');
 const apiKeyRoutes = require('./api_key.routes');
 const webhookRoutes = require('./webhook.routes');

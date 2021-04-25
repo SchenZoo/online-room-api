@@ -1,4 +1,4 @@
-const { AuthService, EventService } = require('../../services/app');
+const { AuthService, EventService, CompanyService } = require('../../services/app');
 const { AuthenticateError } = require('../../errors/general');
 
 module.exports = () => async (req, res, next) => {
@@ -23,6 +23,13 @@ module.exports = () => async (req, res, next) => {
     const event = await EventService.getOne({ _id: eventId, 'participants._id': _id }, {
       findOptions: { projection: '-participants.token' },
     });
+
+    const companyId = CompanyService.getCompanyIdByIntegrationId(req.headers['x-integrationid']);
+
+    if (companyId !== `${event.companyId}`) {
+      return next(new AuthenticateError('Invalid integrationId', true));
+    }
+
 
     const participant = event.participants.find((part) => part._id);
 

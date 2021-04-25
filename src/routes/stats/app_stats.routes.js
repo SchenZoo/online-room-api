@@ -36,6 +36,7 @@ async function getGeneralStatsHandler(req, res) {
     call: TrackingEventStatsService.callAgg(),
     participant: TrackingEventStatsService.eventParticipantAgg(),
     review: TrackingEventStatsService.reviewsAgg(),
+    callByType: TrackingEventStatsService.callPerTypeAgg(),
   }));
 }
 
@@ -49,7 +50,7 @@ async function getCompanyStatsHandler(req, res) {
     call: TrackingEventStatsService.callAgg(query),
     participant: TrackingEventStatsService.eventParticipantAgg(query),
     review: TrackingEventStatsService.reviewsAgg(query),
-    durByType: TrackingEventStatsService.callPerTypeAgg(query),
+    callByType: TrackingEventStatsService.callPerTypeAgg(query),
   }));
 }
 

@@ -7,7 +7,7 @@ const { BadBodyError, NotFoundError, AuthorizeError } = require('../../errors/ge
 const { AuthService } = require('./auth.service');
 const { WebhookService } = require('./webhook.service');
 const { DefaultVideoService } = require('../twilio');
-const { EVENT_CARDINALITY_TYPE } = require('../../constants/company/event/types');
+const { EVENT_CARDINALITY_TYPE, EVENT_ACCESS_TYPES } = require('../../constants/company/event/types');
 const { WEBHOOK_EVENT_TYPES } = require('../../constants/company/webhook/event_types');
 const { EventSocketService } = require('./socket/event.socket_service');
 const { TrackingEventService } = require('./tracking_event.service');
@@ -26,9 +26,10 @@ class EventService extends ModelService {
     });
   }
 
-  async loginParticipantUsingToken(participantToken) {
+  async loginParticipantUsingToken(companyId, participantToken) {
     const event = await this.getOne({
       'participants.token': participantToken,
+      companyId,
     }, {
       findOptions: {
         lean: true,
@@ -42,6 +43,36 @@ class EventService extends ModelService {
     }
 
     const token = await AuthService.signEventParticipantJwt(event._id, participant._id, participant.role);
+
+    event.participants.forEach((part) => {
+      part.token = undefined;
+    });
+
+    return {
+      token,
+      participant,
+      event,
+    };
+  }
+
+  async getOpenEventAuth(companyId, eventToken) {
+    let event = await this.getOne({
+      token: eventToken,
+      companyId,
+      accessType: EVENT_ACCESS_TYPES.OPEN,
+    });
+
+    if (event.participants.length >= event.seats) {
+      throw new BadBodyError('Event is full!', true);
+    }
+
+    await this.addParticipants(event, [{}]);
+
+    const participant = event.participants[event.participants.length - 1];
+
+    const token = await AuthService.signEventParticipantJwt(event._id, participant._id, participant.role);
+
+    event = event.toObject();
 
     event.participants.forEach((part) => {
       part.token = undefined;
@@ -95,6 +126,10 @@ class EventService extends ModelService {
   async addParticipants(event, partialParticipants) {
     if (!Array.isArray(partialParticipants)) {
       throw new BadBodyError('Body must be array of participants', true);
+    }
+
+    if (event.participants.length + partialParticipants.length > event.seats) {
+      throw new BadBodyError('Event is full!', true);
     }
 
     event.participants.push(...partialParticipants.map((part) => ({

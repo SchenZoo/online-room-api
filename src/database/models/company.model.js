@@ -5,6 +5,28 @@ const { addSearchableFields, addEventTracking, addSignedUrlPlugin } = require('.
 
 const { Schema } = mongoose;
 
+const ConfigurationSchema = new Schema({
+  widgetUrl: {
+    type: String,
+    lowercase: true,
+    trim: true,
+  },
+  color1: {
+    type: String,
+    validate: {
+      validator(value) {
+        return !value || /^#[0-9a-f]{6}$/i.test(value);
+      },
+      msg: 'Color value must be in hex format (#1f2f3f)',
+    },
+  },
+  integrationId: {
+    type: String,
+    required: true,
+    immutable: true,
+  },
+}, { timestamps: true, _id: false });
+
 const CompanySchema = new Schema(
   {
     name: {
@@ -18,20 +40,17 @@ const CompanySchema = new Schema(
     businessType: {
       type: String,
     },
-    widgetUrl: {
-      type: String,
-    },
-    widgetTheme: {
-      type: String,
-    },
     logoKey: {
       type: String,
+    },
+    configuration: {
+      type: ConfigurationSchema,
     },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
-CompanySchema.plugin(addSearchableFields(['name']));
+CompanySchema.plugin(addSearchableFields(['name', 'configuration.integrationId']));
 
 CompanySchema.plugin(addSignedUrlPlugin('logoKey', 'logoUrl'));
 

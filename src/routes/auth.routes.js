@@ -1,8 +1,14 @@
 const express = require('express');
 
-const { asyncMiddleware, managerJwtAuthMiddleware } = require('../middlewares');
 const {
-  UserService, ManagerService, EventService,
+  asyncMiddleware,
+  widgetAuthMiddleware,
+  managerJwtAuthMiddleware,
+} = require('../middlewares');
+const {
+  UserService,
+  ManagerService,
+  EventService,
 } = require('../services/app');
 
 
@@ -10,7 +16,8 @@ const router = express.Router();
 
 router.post('/login/users', asyncMiddleware(loginUserHandler));
 router.post('/login/managers', asyncMiddleware(loginManagerHandler));
-router.post('/login/events/participants', asyncMiddleware(loginEventParticipantHandler));
+router.post('/login/events/participants', widgetAuthMiddleware(), asyncMiddleware(loginEventParticipantHandler));
+router.post('/login/events', widgetAuthMiddleware(), asyncMiddleware(loginOpenEventHandler));
 router.post('/login-as/companies/:id', managerJwtAuthMiddleware(), asyncMiddleware(loginAsCompanyUserHandler));
 
 async function loginUserHandler(req, res) {
@@ -47,9 +54,21 @@ async function loginAsCompanyUserHandler(req, res) {
 }
 
 async function loginEventParticipantHandler(req, res) {
-  const { body: { participantToken } } = req;
+  const { companyId, body: { participantToken } } = req;
 
-  const { event, participant, token } = await EventService.loginParticipantUsingToken(participantToken);
+  const { event, participant, token } = await EventService.loginParticipantUsingToken(companyId, participantToken);
+
+  return res.json({
+    event,
+    participant,
+    token,
+  });
+}
+
+async function loginOpenEventHandler(req, res) {
+  const { companyId, body: { eventToken } } = req;
+
+  const { event, participant, token } = await EventService.getOpenEventAuth(companyId, eventToken);
 
   return res.json({
     event,

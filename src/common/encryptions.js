@@ -2,15 +2,16 @@ const Hashids = require('hashids/cjs');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const { HASH_ID_SECRET } = require('../config');
 
-const hashids = new Hashids(process.env.HASH_ID_SECRET);
+const hashids = new Hashids(HASH_ID_SECRET);
 
 function encodeMongoId(id) {
   return hashids.encodeHex(`${id}`);
 }
 
 function decodeMongoId(hash) {
-  return hashids.decodeHex(hash);
+  return hashids.decodeHex(`${hash}`);
 }
 
 function hashPassword(password) {

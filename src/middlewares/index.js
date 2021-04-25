@@ -7,6 +7,7 @@ module.exports = {
   userJwtAuthMiddleware: require('./authenticate/user_jwt_auth.middleware'),
   eventParticipantJwtAuthMiddleware: require('./authenticate/event_participant_jwt_auth.middleware'),
   staticApiKeyAuthMiddleware: require('./authenticate/static_api_key_auth.middleware'),
+  widgetAuthMiddleware: require('./authenticate/widget_auth.middleware'),
   multiOptionMiddleware: require('./multi_option.middleware'),
   propertyFilterMiddleware: require('./request_property_filter.middleware'),
   mapRequestPropMiddleware: require('./mappers/map_request_body.middleware'),

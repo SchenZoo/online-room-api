@@ -18,7 +18,7 @@ module.exports = () => async (req, res, next) => {
       }
 
       if (!apiKey) {
-        throw new Error();
+        throw new Error('Api key missing!');
       }
 
       if (req.companyApiKey === apiKey) {

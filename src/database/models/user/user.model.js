@@ -5,6 +5,7 @@ const { WEBHOOK_EVENT_TYPES } = require('../../../constants/company/webhook/even
 const { TRACKING_EVENT_TYPES } = require('../../../constants/tracking/tracking_event_types');
 const {
   addSearchableFields,
+  addSortableFields,
   addRelationFields,
   addForbiddenFields,
   addHookWebhooks,
@@ -68,6 +69,7 @@ UserSchema.virtual('company', {
 UserSchema.plugin(addForbiddenFields(['password']));
 UserSchema.plugin(addRelationFields(['company']));
 UserSchema.plugin(addSearchableFields(['username', 'name', 'externalId']));
+UserSchema.plugin(addSortableFields(['createdAt', 'updatedAt', 'externalId']));
 UserSchema.plugin(addHookWebhooks({
   create: WEBHOOK_EVENT_TYPES.USER_CREATED,
   update: WEBHOOK_EVENT_TYPES.USER_UPDATED,

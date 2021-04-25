@@ -7,16 +7,20 @@ const {
   managerJwtAuthMiddleware,
   hasPermissionMiddleware,
   fileUploadMiddleware,
-} = require('../middlewares');
-const { CompanyService } = require('../services/app');
+} = require('../../middlewares');
+
+const { ObjectTransforms } = require('../../common');
+
+const { CompanyService } = require('../../services/app');
 
 
 const router = express.Router();
 
-router.post('/', asyncMiddleware(createHandler));
+router.post('/', managerJwtAuthMiddleware(), asyncMiddleware(createHandler));
 
 router.get('/current',
   hasCompanyAccessMiddleware(),
+  hasPermissionMiddleware(PERMISSIONS.READ_COMPANY),
   asyncMiddleware(getCurrentHandler));
 
 router.patch('/current',
@@ -62,7 +66,7 @@ async function getHandler(req, res) {
 async function updateCurrentHandler(req, res) {
   const { companyId, body } = req;
 
-  const company = await CompanyService.updateOne({ _id: companyId }, body);
+  const company = await CompanyService.updateOne({ _id: companyId }, ObjectTransforms.removeProps(body, ['configuration']));
 
   return res.json({
     company,
