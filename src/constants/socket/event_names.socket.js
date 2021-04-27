@@ -8,15 +8,18 @@ const SOCKET_EVENT_NAMES = {
   ONLINE_ACKNOWLEDGE: 'online-acknowledge',
   ONLINE_ACKNOWLEDGE_SUCCESS: 'online-acknowledge:success',
 
-  WEBRTC_SEND_OFFER: 'webrtc-send-offer',
-  WEBRTC_RECEIVE_OFFER: 'webrtc-receive-offer',
-  WEBRTC_SEND_ANSWER: 'webrtc-send-answer',
-  WEBRTC_RECEIVE_ANSWER: 'webrtc-receive-answer',
-  WEBRTC_SEND_CANDIDATE: 'webrtc-send-candidate',
-  WEBRTC_RECEIVE_CANDIDATE: 'webrtc-receive-candidate',
+  WEBRTC_PEER_CONNECTED: 'webrtc-peer-connected',
+  WEBRTC_PEER_DISCONNECTED: 'webrtc-peer-disconnected',
+  WEBRTC_OFFER: 'webrtc-offer',
+  WEBRTC_ANSWER: 'webrtc-answer',
+  WEBRTC_ICE_CANDIDATE: 'webrtc-ice-candidate',
+  WEBRTC_TRACK_OFF: 'webrtc-track-off',
 
   EVENT_CHANGED: 'event-changed',
-  EVENT_MUTE_PARTICIPANT: 'event-mute-participant',
+  EVENT_DISABLE_MIC_PARTICIPANT: 'event-disable-mic-participant',
+  EVENT_DISABLE_MIC_ALL: 'event-disable-mic-all',
+  EVENT_DISABLE_CAMERA_PARTICIPANT: 'event-disable-camera-participant',
+  EVENT_DISABLE_CAMERA_ALL: 'event-disable-camera-all',
   EVENT_KICK_PARTICIPANT: 'event-kick-participant',
 };
 

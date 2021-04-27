@@ -6,8 +6,7 @@ const { Randoms, ObjectTransforms } = require('../../common');
 const { BadBodyError, NotFoundError, AuthorizeError } = require('../../errors/general');
 const { AuthService } = require('./auth.service');
 const { WebhookService } = require('./webhook.service');
-const { DefaultVideoService } = require('../twilio');
-const { EVENT_CARDINALITY_TYPE, EVENT_ACCESS_TYPES } = require('../../constants/company/event/types');
+const { EVENT_ACCESS_TYPES } = require('../../constants/company/event/types');
 const { WEBHOOK_EVENT_TYPES } = require('../../constants/company/webhook/event_types');
 const { EventSocketService } = require('./socket/event.socket_service');
 const { TrackingEventService } = require('./tracking_event.service');
@@ -83,14 +82,6 @@ class EventService extends ModelService {
       participant,
       event,
     };
-  }
-
-  getEventTwilioToken(event, participantId) {
-    if (event.cardinalityType !== EVENT_CARDINALITY_TYPE.GROUP) {
-      throw new BadBodyError(`Only ${EVENT_CARDINALITY_TYPE.GROUP} events work with video tokens!`, true);
-    }
-
-    return DefaultVideoService.getVideoToken(event._id, participantId);
   }
 
   /**

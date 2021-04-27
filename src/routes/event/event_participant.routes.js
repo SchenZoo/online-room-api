@@ -1,6 +1,7 @@
 const express = require('express');
 
 const { EVENT_PARTICIPANT_ROLES } = require('../../constants/company/event/roles');
+const { EVENT_CARDINALITY_TYPE } = require('../../constants/company/event/types');
 
 const { ObjectTransforms } = require('../../common');
 
@@ -13,7 +14,8 @@ const {
   hasEventParticipantRoleMiddleware,
 } = require('../../middlewares');
 
-const { EventService } = require('../../services/app');
+const { EventService, WebRTCSocketService } = require('../../services/app');
+const { DefaultVideoService } = require('../../services/twilio');
 const { BadBodyError } = require('../../errors/general');
 
 const router = express.Router();
@@ -76,7 +78,20 @@ async function deleteParticipantHandler(req, res) {
 async function getParticipantVideoTokenHandler(req, res) {
   const { event, eventPartId } = req;
 
-  const videoToken = EventService.getEventTwilioToken(event, eventPartId);
+  let videoToken;
+
+  switch (event.cardinalityType) {
+    case EVENT_CARDINALITY_TYPE.GROUP:
+      videoToken = DefaultVideoService.getVideoToken(event._id, eventPartId);
+      break;
+    case EVENT_CARDINALITY_TYPE.PTP:
+      videoToken = await WebRTCSocketService.signToken(event._id, eventPartId);
+      break;
+  }
+
+  if (!videoToken) {
+    throw new BadBodyError('Cant create video token for this event!', true);
+  }
 
   return res.json({
     videoToken,

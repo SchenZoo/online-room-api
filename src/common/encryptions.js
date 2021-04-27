@@ -22,9 +22,15 @@ function checkPassword(passwordPlain, passwordEncrypted) {
   return bcrypt.compare(passwordPlain, passwordEncrypted);
 }
 
-async function signJWT(payload, secret) {
+/**
+ *
+ * @param {any} payload
+ * @param {string} secret
+ * @param {{expiresIn:number}} options
+ */
+async function signJWT(payload, secret, options = {}) {
   return new Promise((resolve, reject) => {
-    jwt.sign(payload, secret, (err, data) => {
+    jwt.sign(payload, secret, options, (err, data) => {
       if (err) {
         return reject(err);
       }

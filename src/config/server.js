@@ -3,18 +3,24 @@ const {
   USER_JWT_SECRET,
   MANAGER_JWT_SECRET,
   EVENT_PARTICIPANT_JWT_SECRET,
+  WEBRTC_JWT_SECRET,
   HASH_ID_SECRET,
 } = process.env;
 
-if (!USER_JWT_SECRET || !MANAGER_JWT_SECRET || !EVENT_PARTICIPANT_JWT_SECRET || !HASH_ID_SECRET) {
-  console.error('Missing HASH_ID_SECRET, USER_JWT_SECRET, MANAGER_JWT_SECRET or EVENT_PARTICIPANT_JWT_SECRET');
-  process.exit(1);
-}
-
-module.exports = {
+const server = {
   PORT: +PORT,
   USER_JWT_SECRET,
   MANAGER_JWT_SECRET,
   EVENT_PARTICIPANT_JWT_SECRET,
+  WEBRTC_JWT_SECRET,
   HASH_ID_SECRET,
 };
+
+const missingVars = Object.entries(server).filter(([, value]) => !value).map(([key]) => key);
+
+if (missingVars.length) {
+  console.error(`Missing ${missingVars.join(', ')}`);
+  process.exit(1);
+}
+
+module.exports = server;

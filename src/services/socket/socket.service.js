@@ -15,7 +15,6 @@ class SocketService {
     this.namespace = namespace;
     this.SOCKET_EVENT_NAMES = SOCKET_EVENT_NAMES;
     this.SOCKET_ROOM_NAMES = SOCKET_ROOM_NAMES;
-    SocketIOAdapter.addNamespace(this.namespace, this._onConnect);
     this.tabOvertaking = tabOvertaking;
     this.initialized = false;
   }
@@ -27,7 +26,8 @@ class SocketService {
    * @param {{
     *    pingInterval?: number,
     *    responseTimeout?: number,
-    *    maxPingTries?: number
+    *    maxPingTries?: number,
+    *    additionalOnlineData?: (socketClient:Socket)=>any
     * }} options
    */
   initializeOnlineTracking(connectUser, disconnectUser, options) {
@@ -41,12 +41,14 @@ class SocketService {
       return;
     }
 
-    this.onlineTrackingService = new OnlineTrackingService(connectUser, disconnectUser, (userId) => {
+    this.additionalOnlineData = options.additionalOnlineData;
+
+    this.onlineTrackingService = new OnlineTrackingService((userId) => {
       this.sendEventInRoom(
         SOCKET_ROOM_NAMES.SOCKET_SERVICE_USER_ROOM(userId),
         SOCKET_EVENT_NAMES.ONLINE_ACKNOWLEDGE
       );
-    }, options);
+    }, connectUser, disconnectUser, options);
   }
 
   /**
@@ -91,7 +93,7 @@ class SocketService {
    *   authorize: (socketClient:Socket)=>Promise,
    *   joinRooms: (socketClient:Socket)=>Promise,
    *   initHandlers: (socketClient:Socket)=>Promise,
-   *   onDisconnect: (socketClient:Socket)=>Promise,
+   *   onDisconnect: (socketClient:Socket)=>Promise
    * }} options
    */
   async initialize(options) {
@@ -121,7 +123,7 @@ class SocketService {
         socketClient.join(socketUserRoom);
 
         if (this.onlineTrackingService) {
-          this.onlineTrackingService.onConnect(socketId);
+          this.onlineTrackingService.onConnect(socketId, this.additionalOnlineData && this.additionalOnlineData(socketClient));
           socketClient.on(this.SOCKET_EVENT_NAMES.ONLINE_ACKNOWLEDGE_SUCCESS, () => this.onlineTrackingService.onUserAcknowledge(socketId));
         }
 

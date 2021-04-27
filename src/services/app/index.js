@@ -12,6 +12,7 @@ const { EventReviewService } = require('./event_review.service');
 const { TrackingEventStatsService } = require('./tracking_event_stats.service');
 
 const { EventSocketService } = require('./socket/event.socket_service');
+const { WebRTCSocketService } = require('./socket/webrtc.socket_service');
 
 module.exports = {
   AuthService,
@@ -27,4 +28,5 @@ module.exports = {
   EventChatService,
   EventReviewService,
   TrackingEventStatsService,
+  WebRTCSocketService,
 };

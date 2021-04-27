@@ -102,7 +102,7 @@ class TrackingEventService extends ModelService {
   async trackParticipantLeft(event, participantId, connectedAt, disconnectedAt) {
     let duration = 0;
     if (connectedAt && disconnectedAt) {
-      duration = Math.ceil(moment(disconnectedAt).diff(connectedAt, 'minutes', true));
+      duration = moment(disconnectedAt).diff(connectedAt, 'minutes', true);
     }
     return this.trackParticipantEvents(
       TRACKING_EVENT_TYPES.EVENT_PARTICIPANT_LEFT,

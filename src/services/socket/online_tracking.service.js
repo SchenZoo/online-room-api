@@ -1,9 +1,10 @@
 class OnlineUser {
-  constructor(id, missedAcks = 0, connectedAt = new Date(), disconnectedAt = null) {
+  constructor(id, additionalData = undefined) {
     this.id = id;
-    this.missedAcks = missedAcks;
-    this.connectedAt = connectedAt;
-    this.disconnectedAt = disconnectedAt;
+    this.missedAcks = 0;
+    this.connectedAt = new Date();
+    this.disconnectedAt = null;
+    this.additionalData = additionalData;
   }
 }
 
@@ -11,16 +12,16 @@ class OnlineUser {
 class OnlineTrackingService {
   /**
      *
+     * @param {(userId:string)=>any} pingUser
      * @param {(user:OnlineUser)=>any} connectUser
      * @param {(user:OnlineUser)=>any} disconnectUser
-     * @param {(userId:string)=>any} pingUser
      * @param {{
      *    pingInterval?: number,
      *    responseTimeout?: number,
      *    maxPingTries?: number
      * }} options
      */
-  constructor(connectUser, disconnectUser, pingUser, options = {}) {
+  constructor(pingUser, connectUser = () => {}, disconnectUser = () => {}, options = {}) {
     const { pingInterval = 10000, responseTimeout = 5000, maxPingTries = 5 } = options;
     this.pingInterval = pingInterval;
     this.responseTimeout = responseTimeout;
@@ -63,11 +64,12 @@ class OnlineTrackingService {
   /**
    *
    * @param {string} identifier
+   * @param {any} additionalData
    */
-  onConnect(identifier) {
+  onConnect(identifier, additionalData = undefined) {
     let user = this.getUser(identifier);
     if (!user) {
-      user = this._addNewUser(identifier);
+      user = this._addNewUser(identifier, additionalData);
     }
     this.onUserAcknowledge(identifier);
     this.connectUser(user);
@@ -141,12 +143,14 @@ class OnlineTrackingService {
   /**
    *
    * @param {string} identifier
+   * @param {any} additionalData
    *
    * @returns {OnlineUser | undefined}
    */
-  _addNewUser(identifier) {
+  _addNewUser(identifier, additionalData = undefined) {
     const user = new OnlineUser(
-      identifier
+      identifier,
+      additionalData
     );
 
     this._onlineUsers[identifier] = user;
