@@ -54,6 +54,16 @@ class TrackingEventService extends ModelService {
     );
   }
 
+  async deleteReviewEvent(companyId, eventId, participantId) {
+    TrackingEventModel.deleteOne({
+      type: TRACKING_EVENT_TYPES.EVENT_REVIEW_CREATED,
+      companyId,
+      resourceId: eventId,
+      resource: MONGO_MODEL_NAMES.Event,
+      'data.participantId': participantId,
+    });
+  }
+
   async trackParticipantCreated(event, participantId) {
     return this.trackParticipantEvents(
       TRACKING_EVENT_TYPES.EVENT_PARTICIPANT_CREATED,

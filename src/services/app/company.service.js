@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { ModelService } = require('./model.service');
 const { CompanyModel } = require('../../database/models');
+const { WHITELISTED_ORIGINS } = require('../../config');
 const { Encryptions } = require('../../common');
 const { AuthorizeError } = require('../../errors/general');
 
@@ -51,7 +52,7 @@ class CompanyService extends ModelService {
     });
     const { configuration } = company;
 
-    const allOriginsAllowed = !configuration.widgetUrl;
+    const allOriginsAllowed = this.isCompanyAllowingAnyOrigin(company);
 
     const parsedOrigin = (origin || '').toLowerCase().replace(/^https?:\/\//, '');
     const parsedWidgetUrl = (configuration.widgetUrl).replace(/^https?:\/\//, '').replace(/\/.*/, '');
@@ -65,6 +66,15 @@ class CompanyService extends ModelService {
 
   getCompanyIdByIntegrationId(integrationId) {
     return Encryptions.decodeMongoId(integrationId);
+  }
+
+  isOriginWhiteListed(origin = '') {
+    const parsedOrigin = (origin).toLowerCase().replace(/^https?:\/\//, '').replace(/:[0-9]{4,5}$/, '');
+    return WHITELISTED_ORIGINS.includes(parsedOrigin);
+  }
+
+  isCompanyAllowingAnyOrigin(company) {
+    return company && company.configuration && !company.configuration.widgetUrl;
   }
 }
 

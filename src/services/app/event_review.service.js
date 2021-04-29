@@ -15,6 +15,17 @@ class EventReviewService extends ModelService {
 
     return doc;
   }
+
+  async removeOne(companyId, eventId, participantId) {
+    try {
+      await super.removeOne({
+        participantId,
+        eventId,
+        companyId,
+      });
+      await TrackingEventService.deleteReviewEvent(companyId, eventId, participantId);
+    } catch (err) {}
+  }
 }
 
 module.exports = {

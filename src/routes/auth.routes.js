@@ -11,6 +11,10 @@ const {
   EventService,
 } = require('../services/app');
 
+const {
+  NotFoundError,
+} = require('../errors/general');
+
 
 const router = express.Router();
 
@@ -56,7 +60,12 @@ async function loginAsCompanyUserHandler(req, res) {
 async function loginEventParticipantHandler(req, res) {
   const { companyId, body: { participantToken } } = req;
 
-  const { event, participant, token } = await EventService.loginParticipantUsingToken(companyId, participantToken);
+  const { event, participant, token } = await EventService.loginParticipantUsingToken(participantToken);
+
+
+  if (companyId && `${event.companyId}` !== companyId) {
+    throw new NotFoundError('Event with this companyId not found');
+  }
 
   return res.json({
     event,
@@ -68,7 +77,11 @@ async function loginEventParticipantHandler(req, res) {
 async function loginOpenEventHandler(req, res) {
   const { companyId, body: { eventToken } } = req;
 
-  const { event, participant, token } = await EventService.getOpenEventAuth(companyId, eventToken);
+  const { event, participant, token } = await EventService.getOpenEventAuth(eventToken);
+
+  if (companyId && `${event.companyId}` !== companyId) {
+    throw new NotFoundError('Event with this companyId not found');
+  }
 
   return res.json({
     event,

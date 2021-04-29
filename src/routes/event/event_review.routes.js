@@ -33,6 +33,12 @@ async function createHandler(req, res) {
     body,
   } = req;
 
+  await EventReviewService.removeOne(
+    companyId,
+    eventId,
+    eventPartId
+  );
+
   const review = await EventReviewService.create({
     ...body,
     participantId: eventPartId,

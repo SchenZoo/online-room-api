@@ -25,10 +25,9 @@ class EventService extends ModelService {
     });
   }
 
-  async loginParticipantUsingToken(companyId, participantToken) {
+  async loginParticipantUsingToken(participantToken) {
     const event = await this.getOne({
       'participants.token': participantToken,
-      companyId,
     }, {
       findOptions: {
         lean: true,
@@ -54,10 +53,9 @@ class EventService extends ModelService {
     };
   }
 
-  async getOpenEventAuth(companyId, eventToken) {
+  async getOpenEventAuth(eventToken) {
     let event = await this.getOne({
       token: eventToken,
-      companyId,
       accessType: EVENT_ACCESS_TYPES.OPEN,
     });
 

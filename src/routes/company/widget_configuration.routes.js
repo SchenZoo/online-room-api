@@ -6,7 +6,6 @@ const {
   widgetAuthMiddleware,
   hasCompanyAccessMiddleware,
   hasPermissionMiddleware,
-  multiOptionMiddleware,
 } = require('../../middlewares');
 
 const { CompanyService } = require('../../services/app');
@@ -26,7 +25,7 @@ async function getWidgetConfigurationHandler(req, res) {
   const { company } = req;
 
   return res.json({
-    configuration: company.configuration,
+    configuration: company && company.configuration,
   });
 }
 

@@ -1,5 +1,6 @@
 const { AuthService, EventService, CompanyService } = require('../../services/app');
 const { AuthenticateError } = require('../../errors/general');
+const { INTEGRATION_ID_HEADER } = require('../../config');
 
 module.exports = () => async (req, res, next) => {
   try {
@@ -24,18 +25,22 @@ module.exports = () => async (req, res, next) => {
       findOptions: { projection: '-participants.token' },
     });
 
-    const companyId = CompanyService.getCompanyIdByIntegrationId(req.headers['x-integrationid']);
-
-    if (companyId !== `${event.companyId}`) {
-      return next(new AuthenticateError('Invalid integrationId', true));
-    }
-
-
     const participant = event.participants.find((part) => part._id);
 
     if (!participant) {
       throw new Error();
     }
+
+    const integrationId = req.headers[INTEGRATION_ID_HEADER];
+
+    if (integrationId || !CompanyService.isOriginWhiteListed(req.get('origin'))) {
+      const companyId = CompanyService.getCompanyIdByIntegrationId(integrationId);
+
+      if (companyId !== `${event.companyId}`) {
+        return next(new AuthenticateError('Invalid integrationId', true));
+      }
+    }
+
 
     req.eventPartJwtToken = token;
     req.eventId = eventId;

@@ -23,4 +23,15 @@ if (missingVars.length) {
   process.exit(1);
 }
 
-module.exports = server;
+
+const WHITELISTED_ORIGINS = [
+  'localhost',
+];
+
+const INTEGRATION_ID_HEADER = 'x-integrationid';
+
+module.exports = {
+  ...server,
+  WHITELISTED_ORIGINS,
+  INTEGRATION_ID_HEADER,
+};
