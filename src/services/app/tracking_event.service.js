@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const moment = require('moment');
 const { ModelService } = require('./model.service');
 const { TrackingEventModel } = require('../../database/models/tracking_event.model');
@@ -55,12 +56,12 @@ class TrackingEventService extends ModelService {
   }
 
   async deleteReviewEvent(companyId, eventId, participantId) {
-    TrackingEventModel.deleteOne({
+    return TrackingEventModel.deleteMany({
       type: TRACKING_EVENT_TYPES.EVENT_REVIEW_CREATED,
       companyId,
       resourceId: eventId,
-      resource: MONGO_MODEL_NAMES.Event,
-      'data.participantId': participantId,
+      resourceModel: MONGO_MODEL_NAMES.Event,
+      'data.participantId': mongoose.Types.ObjectId(participantId),
     });
   }
 

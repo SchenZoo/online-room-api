@@ -19,12 +19,12 @@ class EventReviewService extends ModelService {
   async removeOne(companyId, eventId, participantId) {
     try {
       await super.removeOne({
-        participantId,
-        eventId,
         companyId,
+        eventId,
+        participantId,
       });
       await TrackingEventService.deleteReviewEvent(companyId, eventId, participantId);
-    } catch (err) {}
+    } catch (err) { }
   }
 }
 

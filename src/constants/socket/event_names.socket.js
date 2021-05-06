@@ -21,6 +21,7 @@ const SOCKET_EVENT_NAMES = {
   EVENT_DISABLE_CAMERA_PARTICIPANT: 'event-disable-camera-participant',
   EVENT_DISABLE_CAMERA_ALL: 'event-disable-camera-all',
   EVENT_KICK_PARTICIPANT: 'event-kick-participant',
+  EVENT_MESSAGE_CREATED: 'event-message-created',
 };
 
 module.exports = {
