@@ -1,6 +1,6 @@
-const { Environment } = require('../common');
+const { initializeEnvironment } = require('../common/environment');
 
-Environment.initializeEnvironment();
+initializeEnvironment();
 
 
 module.exports = {
