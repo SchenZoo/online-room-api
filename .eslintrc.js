@@ -45,5 +45,6 @@ module.exports = {
     'no-console': 'off',
     'new-cap': 'off',
     'prefer-rest-params': 'off',
+    'max-classes-per-file': 'off',
   },
 };

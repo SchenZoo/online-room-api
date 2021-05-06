@@ -1,9 +1,8 @@
-const { DefaultSocketInstance } = require('./default');
-const { SocketFactory } = require('./socket_factory');
-const { SocketInstance } = require('./socket_instance');
+const { SocketService, OnlineUser } = require('./socket.service');
+const { SocketIOAdapter } = require('./socketio.adapter');
 
 module.exports = {
-  DefaultSocketInstance,
-  SocketFactory,
-  SocketInstance,
+  SocketService,
+  SocketIOAdapter,
+  OnlineUser,
 };

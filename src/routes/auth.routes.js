@@ -1,29 +1,93 @@
 const express = require('express');
 
-const router = express.Router();
-const jwt = require('jsonwebtoken');
-const { UserModel } = require('../database/models');
-const { asyncMiddleware } = require('../middlewares');
+const {
+  asyncMiddleware,
+  widgetAuthMiddleware,
+  managerJwtAuthMiddleware,
+} = require('../middlewares');
+const {
+  UserService,
+  ManagerService,
+  EventService,
+} = require('../services/app');
 
-router.post(
-  '/login',
-  asyncMiddleware(async (req, res) => {
-    const { username, password } = req.body;
-    const user = await UserModel.findOne({ username }).select('+password');
-    if (user && UserModel.checkPassword(password, user.password)) {
-      const payload = { _id: user._id };
-      const token = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: '7d',
-      });
-      // eslint-disable-next-line no-unused-vars
-      const { password, ...userRest } = user.toObject();
-      return res.json({
-        token,
-        user: userRest,
-      });
-    }
-    return res.status(404).json({ message: 'Wrong username or password' });
-  })
-);
+const {
+  NotFoundError,
+} = require('../errors/general');
+
+
+const router = express.Router();
+
+router.post('/login/users', asyncMiddleware(loginUserHandler));
+router.post('/login/managers', asyncMiddleware(loginManagerHandler));
+router.post('/login/events/participants', widgetAuthMiddleware(), asyncMiddleware(loginEventParticipantHandler));
+router.post('/login/events', widgetAuthMiddleware(), asyncMiddleware(loginOpenEventHandler));
+router.post('/login-as/companies/:id', managerJwtAuthMiddleware(), asyncMiddleware(loginAsCompanyUserHandler));
+
+async function loginUserHandler(req, res) {
+  const { username, password } = req.body;
+
+  const { token, user } = await UserService.loginUsingCredentials(username, password);
+
+  return res.json({
+    user,
+    token,
+  });
+}
+
+async function loginManagerHandler(req, res) {
+  const { username, password } = req.body;
+
+  const { token, manager } = await ManagerService.loginUsingCredentials(username, password);
+
+  return res.json({
+    manager,
+    token,
+  });
+}
+
+async function loginAsCompanyUserHandler(req, res) {
+  const { params: { id }, managerId } = req;
+
+  const { token, user } = await UserService.loginUsingManager(id, managerId);
+
+  return res.json({
+    user,
+    token,
+  });
+}
+
+async function loginEventParticipantHandler(req, res) {
+  const { companyId, body: { participantToken } } = req;
+
+  const { event, participant, token } = await EventService.loginParticipantUsingToken(participantToken);
+
+
+  if (companyId && `${event.companyId}` !== companyId) {
+    throw new NotFoundError('Event with this companyId not found');
+  }
+
+  return res.json({
+    event,
+    participant,
+    token,
+  });
+}
+
+async function loginOpenEventHandler(req, res) {
+  const { companyId, body: { eventToken } } = req;
+
+  const { event, participant, token } = await EventService.getOpenEventAuth(eventToken);
+
+  if (companyId && `${event.companyId}` !== companyId) {
+    throw new NotFoundError('Event with this companyId not found');
+  }
+
+  return res.json({
+    event,
+    participant,
+    token,
+  });
+}
 
 module.exports = router;

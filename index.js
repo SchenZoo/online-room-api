@@ -1,31 +1,30 @@
 const http = require('http');
-const { initializeEnvironment } = require('./src/common/environment');
 
-initializeEnvironment();
+const { PORT } = require('./src/config');
 
-require('./src/polyfills');
-require('./src/database/connections');
-const { SocketFactory } = require('./src/services/socket');
+const loadApp = require('./src/loaders');
+
+const { SocketIOAdapter } = require('./src/services/socket');
 
 const app = require('./src/app');
 
-const port = process.env.PORT || '3000';
 const server = http.createServer(app);
-server.listen(port);
-SocketFactory.initializeSocketFromExpressServer(server);
+
+loadApp().then(() => {
+  server.listen(PORT);
+  SocketIOAdapter.initializeSocketFromExpressServer(server);
+});
 
 server.once('listening', () => {
-  console.log(`Server started port:${port}`);
+  console.log(`Server started on port: ${PORT}`);
 });
 
 setProcessListeners();
 
 
 function setProcessListeners() {
-  process.on('uncaughtException', handleUncaughtException);
-}
-
-function handleUncaughtException(error) {
-  console.error('Error not cought');
-  console.error(error);
+  process.on('uncaughtException', (error) => {
+    console.error('Error not cought');
+    console.error(error);
+  });
 }

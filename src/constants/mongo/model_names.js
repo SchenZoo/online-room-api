@@ -1,6 +1,14 @@
 const MONGO_MODEL_NAMES = {
+  Manager: 'Manager',
+  Company: 'Company',
   User: 'User',
-  Room: 'Room',
+  Event: 'Event',
+  EventChatMessage: 'EventChatMessage',
+  EventReview: 'EventReview',
+  TrackingEvent: 'TrackingEvent',
+  ApiKey: 'ApiKey',
+  Webhook: 'Webhook',
+  WebhookLog: 'WebhookLog',
 };
 
 module.exports = {

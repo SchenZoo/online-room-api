@@ -48,10 +48,6 @@ Check for lint errors using eslint and try to autofix them
 
 ### Commands:
 
-#### `yarn cache:clear`
-
-Clear cache from Redis
-
 ### Seeders:
 
 #### `yarn seed:users`
@@ -94,7 +90,7 @@ Seed users to database
 
 `3.1 Run command 'use admin' to change to admin database (where admin users should be stored)`
 
-`3.2 Run command 'db.createUser( { user: "online-room", pwd: "asdlolasd", roles: [ { role: "dbOwner", db: "online-room-api" } ] } )'`
+`3.2 Run command 'db.createUser( { user: "api", pwd: "asdlolasd", roles: [ { role: "dbOwner", db: "online-room" } ] } )'`
 
 `4 Enter .env.local file of project and set variables of user you made following step 3`
 

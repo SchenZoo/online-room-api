@@ -1,0 +1,8 @@
+const EVENT_PARTICIPANT_ROLES = {
+  ADMIN: 'ADMIN',
+  PARTICIPANT: 'PARTICIPANT',
+};
+
+module.exports = {
+  EVENT_PARTICIPANT_ROLES,
+};
