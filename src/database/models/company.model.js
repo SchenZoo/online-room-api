@@ -3,6 +3,16 @@ const { MONGO_MODEL_NAMES } = require('../../constants/mongo/model_names');
 const { TRACKING_EVENT_TYPES } = require('../../constants/tracking/tracking_event_types');
 const { addSearchableFields, addEventTracking, addSignedUrlPlugin } = require('../plugins');
 
+const ColorSchemaType = {
+  type: String,
+  validate: {
+    validator(value) {
+      return !value || /^#[0-9a-fA-F]{6}$/i.test(value);
+    },
+    msg: 'Color value must be in hex format (#1f2f3f)',
+  },
+};
+
 const { Schema } = mongoose;
 
 const ConfigurationSchema = new Schema({
@@ -11,21 +21,23 @@ const ConfigurationSchema = new Schema({
     lowercase: true,
     trim: true,
   },
-  color1: {
+  eventBackgroundColor: ColorSchemaType,
+  avatarBackgroundColor: ColorSchemaType,
+  avatarFillColor: ColorSchemaType,
+  avatarImageKey: {
     type: String,
-    validate: {
-      validator(value) {
-        return !value || /^#[0-9a-f]{6}$/i.test(value);
-      },
-      msg: 'Color value must be in hex format (#1f2f3f)',
-    },
   },
   integrationId: {
     type: String,
     required: true,
     immutable: true,
   },
-}, { timestamps: true, _id: false });
+}, {
+  timestamps: true, _id: false, toJSON: { virtuals: true }, toObject: { virtuals: true },
+});
+
+ConfigurationSchema.plugin(addSignedUrlPlugin('avatarImageKey', 'avatarImageUrl'));
+
 
 const CompanySchema = new Schema(
   {

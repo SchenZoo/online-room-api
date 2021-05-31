@@ -6,6 +6,7 @@ const {
   widgetAuthMiddleware,
   hasCompanyAccessMiddleware,
   hasPermissionMiddleware,
+  fileUploadMiddleware,
 } = require('../../middlewares');
 
 const { CompanyService } = require('../../services/app');
@@ -19,6 +20,11 @@ router.get('/',
 router.patch('/',
   hasCompanyAccessMiddleware(),
   hasPermissionMiddleware(PERMISSIONS.UPADTE_COMPANY_CONFIGURATION),
+  fileUploadMiddleware({
+    fileProp: 'avatarImageKey',
+    mimeValidator: /^image/i,
+    saveInProp: 'body.avatarImageKey',
+  }),
   asyncMiddleware(updateHandler));
 
 async function getWidgetConfigurationHandler(req, res) {
