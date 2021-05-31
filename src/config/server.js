@@ -26,7 +26,7 @@ if (missingVars.length) {
 
 const WHITELISTED_ORIGINS = [
   'localhost',
-  'widget.web-conf.xyz',
+  'demo.web-conf.xyz',
 ];
 
 const INTEGRATION_ID_HEADER = 'x-integrationid';
